@@ -31,6 +31,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/player/` | Player movement and tile collision |
 | `src/save/` | Auto-save to localStorage; features persist state with `game.saves.register(key, { save, load }, game.resume)` |
 | `src/ui/` | Overlays such as the minimap |
+| `src/animals/` | Wildlife: lions that roam grassland, chase you when close and rest after a pounce (outrun them with Shift) |
 | `src/render.ts` | Draws visible tiles and the player |
 | `tests/` | Vitest unit tests |
 
