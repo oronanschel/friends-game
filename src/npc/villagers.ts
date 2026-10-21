@@ -25,6 +25,56 @@ export interface NpcDef {
   quest?: Quest;
 }
 
+/**
+ * Mario and Luigi. Lots of them roam the world in pairs (see `src/npc/plumber.ts`);
+ * every Mario shares one quest, and so does every Luigi.
+ */
+export const MARIO: NpcDef = {
+  name: 'Mario',
+  color: '#e0302a',
+  home: { dx: 0, dy: 0 },
+  lines: [
+    "It's-a me, Mario! My brother and I came here through a big green pipe.",
+    'Lots of us came through, actually. Wahoo!',
+  ],
+  quest: {
+    id: 'mario-coins',
+    title: "Mario's lost coins",
+    want: { kind: ItemKind.Coin, n: 8 },
+    reward: { kind: ItemKind.Gem, n: 2 },
+    ask: 'We lost our coins in the pipe! Could you collect 8? I will give you 2 shiny gems.',
+    thanks: 'Wahoo! Thank you! Here are your gems.',
+  },
+  trade: {
+    give: { kind: ItemKind.Coin, n: 6 },
+    get: { kind: ItemKind.Gem, n: 1 },
+    thanks: "Here we go! Let's-a trade again sometime.",
+  },
+};
+
+export const LUIGI: NpcDef = {
+  name: 'Luigi',
+  color: '#2fa43a',
+  home: { dx: 0, dy: 0 },
+  lines: [
+    "H-hi, I'm Luigi. Have you seen the lions out there? They're so scary!",
+    'They say a blue Lion ward stone keeps them away. Press 3 to use one.',
+  ],
+  quest: {
+    id: 'luigi-mushrooms',
+    title: "Luigi's brave mushrooms",
+    want: { kind: ItemKind.Mushroom, n: 3 },
+    reward: { kind: ItemKind.Coin, n: 6 },
+    ask: 'Mushrooms make me feel brave! Could you bring me 3 from the forest?',
+    thanks: "I feel braver already! Here, 6 coins. Let's-a go!",
+  },
+  trade: {
+    give: { kind: ItemKind.Berry, n: 2 },
+    get: { kind: ItemKind.Coin, n: 1 },
+    thanks: 'Yum, thank you!',
+  },
+};
+
 /** The villagers who live around the spawn point. */
 export const VILLAGERS: NpcDef[] = [
   {
