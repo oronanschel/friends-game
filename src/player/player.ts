@@ -1,6 +1,7 @@
 import type { Camera } from '../engine/camera';
 import { drawPlayer } from '../render';
 import { TILE_SIZE, World } from '../world/world';
+import type { Facing } from './sprite';
 
 /** Speed multiplier while running (Shift). */
 export const RUN_MULTIPLIER = 1.75;
@@ -11,7 +12,11 @@ export class Player {
   readonly size = 20;
   /** Movement speed in world pixels per second. */
   speed = 160;
-  facing: 'up' | 'down' | 'left' | 'right' = 'down';
+  facing: Facing = 'down';
+  /** Total distance walked, drives the walk animation. */
+  walked = 0;
+  /** Whether the player moved this update. */
+  moving = false;
 
   constructor(public x: number, public y: number) {}
 
@@ -34,12 +39,17 @@ export class Player {
     const mx = dx * speed * dt;
     const my = dy * speed * dt;
     const steps = Math.max(1, Math.ceil(Math.max(Math.abs(mx), Math.abs(my)) / 4));
+    const startX = this.x;
+    const startY = this.y;
     for (let i = 0; i < steps; i++) {
       const nx = this.x + mx / steps;
       if (!this.collides(nx, this.y, world)) this.x = nx;
       const ny = this.y + my / steps;
       if (!this.collides(this.x, ny, world)) this.y = ny;
     }
+    const moved = Math.hypot(this.x - startX, this.y - startY);
+    this.moving = moved > 0.01;
+    this.walked += moved;
   }
 
   draw(ctx: CanvasRenderingContext2D, camera: Camera): void {

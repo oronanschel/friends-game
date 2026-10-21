@@ -11,6 +11,7 @@ import {
   isTallCastlePart,
   KEEP,
 } from './world/castles';
+import { drawHero, walkFrame } from './player/sprite';
 import { Decor, drawDecor, isTallDecor } from './world/decor';
 import { hash2 } from './world/noise';
 import { TILE_INFO, Tile } from './world/tiles';
@@ -101,17 +102,8 @@ export function render(
   for (const d of drawables) d.draw?.(ctx, camera);
 }
 
-/** Draw the player: a simple body with a facing indicator. */
+/** Draw the player as an animated pixel-art hero standing on its collision box. */
 export function drawPlayer(ctx: CanvasRenderingContext2D, camera: Camera, player: Player): void {
   const p = camera.toScreen(player.x, player.y);
-  const half = player.size / 2;
-  ctx.fillStyle = 'rgba(0,0,0,0.25)';
-  ctx.beginPath();
-  ctx.ellipse(p.x, p.y + half, half, half / 2.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#e8463c';
-  ctx.fillRect(Math.round(p.x - half), Math.round(p.y - half), player.size, player.size);
-  ctx.fillStyle = '#fff';
-  const eye = { up: [0, -6], down: [0, 6], left: [-6, 0], right: [6, 0] }[player.facing];
-  ctx.fillRect(Math.round(p.x + eye[0] - 2), Math.round(p.y + eye[1] - 2), 4, 4);
+  drawHero(ctx, p.x, p.y + player.size / 2, player.facing, walkFrame(player.walked, player.moving));
 }
