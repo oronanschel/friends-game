@@ -10,12 +10,15 @@ import { KnightSpawner } from './knights/spawner';
 import { TalkController, spawnVillagers } from './npc/talk';
 import { Health, eatBerry } from './player/health';
 import { Player } from './player/player';
+import { PowerStoneSystem, drawPowerAura } from './power/powerWorld';
+import { PowerStones } from './power/stones';
 import { render } from './render';
 import { SaveManager, chooseStart } from './save/save';
 import { drawHealthHud } from './ui/healthHud';
 import { drawInventoryHud } from './ui/inventoryHud';
 import { DayNight } from './ui/daynight';
 import { Minimap } from './ui/minimap';
+import { drawStoneHud, stoneSlotAt } from './ui/stoneHud';
 import { TouchControls } from './ui/touch';
 import { TILE_SIZE, World } from './world/world';
 
@@ -47,6 +50,18 @@ const camera = new Camera(window.innerWidth, window.innerHeight);
 camera.follow(player.x, player.y);
 const input = new Input();
 const minimap = new Minimap();
+// Power stones: walk over them to collect, press 1/2/3 (or tap the bar) to use one.
+const powerStones = new PowerStones();
+saves.register('powerStones', powerStones, resume);
+const powerSystem = new PowerStoneSystem(powerStones);
+// Registered before the touch controls so a tap on the stone bar doesn't also move the joystick.
+// The bar is hidden while chatting, so taps then go to the dialogue box instead.
+canvas.addEventListener('pointerdown', (e) => {
+  const kind = talk.busy ? null : stoneSlotAt(e.offsetX, e.offsetY, canvas.width, canvas.height);
+  if (!kind) return;
+  powerSystem.request(kind);
+  e.stopImmediatePropagation();
+});
 const touch = new TouchControls(canvas, input, {
   toggleMap: () => (minimap.visible = !minimap.visible),
   eat: () => eat(),
@@ -64,6 +79,7 @@ const game: Game = { world, player, camera, input, entities: [], inventory, save
 game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
 game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
 game.entities.push(new KnightSpawner()); // chess knights guard the castles
+game.entities.push(powerSystem); // rare power stones and their powers
 spawnVillagers(game, spawn.tx, spawn.ty); // friendly villagers near the start; press E to talk
 const talk = new TalkController(window, canvas);
 
@@ -117,13 +133,15 @@ startLoop(
   () => {
     render(ctx, world, camera, player, game.entities);
     dayNight.draw(ctx, camera, player.x, player.y);
+    drawPowerAura(ctx, camera, powerStones, player.x, player.y);
     talk.draw(ctx, camera);
     minimap.draw(ctx, world, player.x, player.y);
     drawInventoryHud(ctx, inventory, canvas.height);
     drawHealthHud(ctx, health, canvas.width, canvas.height);
+    if (!talk.busy) drawStoneHud(ctx, powerStones);
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, E to talk, M for map, Q to eat a berry, V for sound${sound.muted ? ' (muted)' : ''}`;
+    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, E to talk, M for map, Q to eat a berry, 1/2/3 power stones, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );

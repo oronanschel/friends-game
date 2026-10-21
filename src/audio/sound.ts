@@ -1,7 +1,7 @@
 import { Tile } from '../world/tiles';
 
 /** Sound effects other features can trigger with `game.sound?.play(name, at)`. */
-export type SfxName = 'roar' | 'pounce' | 'pickup';
+export type SfxName = 'roar' | 'pounce' | 'pickup' | 'power';
 
 /** Footstep timbre per ground type: noise filter frequency (Hz) and loudness. */
 export function footstepFor(tile: Tile): { freq: number; gain: number } | null {
@@ -100,6 +100,10 @@ export class Sound {
       case 'pickup':
         this.tone(880, 0.15 * volume, 0.08);
         this.tone(1320, 0.15 * volume, 0.12, 0.08);
+        break;
+      case 'power':
+        // Rising sparkle for power stones.
+        [660, 880, 1100, 1320].forEach((f, i) => this.tone(f, 0.12 * volume, 0.1, i * 0.05, 'triangle'));
         break;
     }
   }
