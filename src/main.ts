@@ -6,6 +6,7 @@ import { startLoop } from './engine/loop';
 import { type Game, updateEntities } from './game';
 import { Inventory } from './items/items';
 import { ItemSpawner } from './items/pickup';
+import { TalkController, spawnVillagers } from './npc/talk';
 import { Health, eatBerry } from './player/health';
 import { Player } from './player/player';
 import { render } from './render';
@@ -59,6 +60,11 @@ const health = new Health();
 saves.register('health', health, resume);
 const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume, sound, health };
 
+game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
+game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
+spawnVillagers(game, spawn.tx, spawn.ty); // friendly villagers near the start; press E to talk
+const talk = new TalkController(window, canvas);
+
 // Q eats a berry to restore a heart (E is for talking to NPCs).
 function eat(): void {
   if (eatBerry(health, inventory)) sound.play('pickup');
@@ -66,8 +72,6 @@ function eat(): void {
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyQ' && !e.repeat) eat();
 });
-game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
-game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
 (window as unknown as { game: Game }).game = game; // handy in the browser console
 
 // Auto-save every few seconds and when the tab is hidden or closed.
@@ -99,22 +103,25 @@ startLoop(
       player.y = (spawn.ty + 0.5) * TILE_SIZE;
       camera.follow(player.x, player.y);
     }
-    if (health.awake) player.update(dt, input.axis(), world, input.running());
+    // Stand still while fainted or chatting.
+    if (health.awake) player.update(dt, talk.busy ? { x: 0, y: 0 } : input.axis(), world, input.running());
     const tile = world.getTile(Math.floor(player.x / TILE_SIZE), Math.floor(player.y / TILE_SIZE));
     sound.update(Math.hypot(player.x - px, player.y - py), tile, input.running());
     updateEntities(game, dt);
+    talk.update(game);
     dayNight.update(dt);
     camera.follow(player.x, player.y, 0.15);
   },
   () => {
     render(ctx, world, camera, player, game.entities);
     dayNight.draw(ctx, camera, player.x, player.y);
+    talk.draw(ctx, camera);
     minimap.draw(ctx, world, player.x, player.y);
     drawInventoryHud(ctx, inventory, canvas.height);
     drawHealthHud(ctx, health, canvas.width, canvas.height);
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map, Q to eat a berry, V for sound${sound.muted ? ' (muted)' : ''}`;
+    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, E to talk, M for map, Q to eat a berry, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );
