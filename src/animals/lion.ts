@@ -1,3 +1,4 @@
+import { falloff } from '../audio/sound';
 import type { Camera } from '../engine/camera';
 import type { Entity, Game } from '../game';
 import { TILE_SIZE, type World } from '../world/world';
@@ -73,6 +74,7 @@ export class Lion implements Entity {
           this.state = 'chase';
           this.timer = LION.maxChaseTime;
           this.roar = LION.roarTime;
+          game.sound?.play('roar', falloff(dist));
           break;
         }
         if (this.timer <= 0) {
@@ -91,6 +93,7 @@ export class Lion implements Entity {
           const away = dist > 0 ? { x: dx / dist, y: dy / dist } : { x: 1, y: 0 };
           player.update(0.2, away, world, true);
           this.roar = LION.roarTime;
+          game.sound?.play('pounce');
           this.rest();
           break;
         }

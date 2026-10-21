@@ -1,5 +1,6 @@
 import type { Camera } from './engine/camera';
 import type { Input } from './engine/input';
+import type { Sound } from './audio/sound';
 import type { Inventory } from './items/items';
 import type { Player } from './player/player';
 import type { SaveData, SaveManager } from './save/save';
@@ -32,6 +33,8 @@ export interface Game {
   saves: SaveManager;
   /** The save this session continued from, if any. */
   resume: SaveData | null;
+  /** Sound effects: `game.sound?.play('pickup')`. Optional so tests can omit it. */
+  sound?: Sound;
 }
 
 /** Advance every entity and drop the ones marked dead. */
