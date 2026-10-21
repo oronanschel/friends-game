@@ -79,7 +79,7 @@ describe('Dialogue', () => {
   it('adds a trade offer after the lines', () => {
     const pages = pagesFor(trader);
     expect(pages).toHaveLength(2);
-    expect(pages[1].trade).toBe(true);
+    expect(pages[1].action).toBe('trade');
     expect(pages[1].text).toContain('3 berries');
   });
 
