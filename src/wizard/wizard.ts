@@ -153,6 +153,13 @@ export class Wizard implements Entity {
     this.cooldown = WIZARD.cooldown[0] + this.random() * WIZARD.cooldown[1];
   }
 
+  /** Hit by the player's own magic (see `src/player/spell.ts`): his spell fizzles and he blinks away to recover. */
+  onSpellHit(game: Game): void {
+    this.casting = 0;
+    this.blinkNear(game);
+    this.cooldown = Math.max(this.cooldown, 4);
+  }
+
   /** Vanish and reappear on open ground near the player. */
   private blinkNear(game: Game): void {
     const { player, world } = game;

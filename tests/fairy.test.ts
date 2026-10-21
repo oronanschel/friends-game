@@ -120,3 +120,20 @@ describe('wizard spells', () => {
     expect(f.bubble).toBe('Hehe!');
   });
 });
+
+describe('wizard duel', () => {
+  it('a player bolt interrupts the enemy wizard and blinks him away', async () => {
+    const { Wizard } = await import('../src/wizard/wizard');
+    const world = new World(1337);
+    const enemy = new Wizard(0, 0, 1);
+    const game = { world, player: new Player(0, 0), entities: [enemy], health: new Health() } as unknown as Game;
+    enemy.update(1 / 60, game); // places him near the player
+    enemy.casting = 0.5;
+    enemy.onSpellHit(game);
+    expect(enemy.casting).toBe(0);
+    expect(enemy.cooldown).toBeGreaterThanOrEqual(4);
+    expect(enemy.puff).toBeGreaterThan(0);
+    // He reappears well away from the player.
+    expect(Math.hypot(enemy.x - game.player.x, enemy.y - game.player.y)).toBeGreaterThan(5 * TILE_SIZE);
+  });
+});
