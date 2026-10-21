@@ -3,6 +3,7 @@ import type { Game } from '../game';
 import { TILE_SIZE } from '../world/world';
 import { Dialogue } from './dialogue';
 import { Npc } from './npc';
+import { QuestLog, amount } from './quests';
 import { VILLAGERS } from './villagers';
 
 /** How close the player must be to talk to an NPC. */
@@ -43,6 +44,8 @@ const inside = (r: Rect | null, x: number, y: number) =>
  */
 export class TalkController {
   readonly dialogue = new Dialogue();
+  /** Accepted and finished villager quests; register with `game.saves` to persist. */
+  readonly quests = new QuestLog(VILLAGERS.flatMap((v) => (v.quest ? [v.quest] : [])));
   /** NPC currently in talking range (or being talked to). */
   target: Npc | null = null;
   private pending: ('confirm' | 'cancel')[] = [];
@@ -84,11 +87,11 @@ export class TalkController {
       if (action === 'cancel') {
         this.end();
       } else if (this.dialogue.open) {
-        this.dialogue.advance(game.inventory);
+        this.dialogue.advance(game.inventory, this.quests);
         if (!this.dialogue.open) this.end();
       } else if (this.target) {
         this.target.talking = true;
-        this.dialogue.start(this.target.def);
+        this.dialogue.start(this.target.def, this.quests, game.inventory);
       }
     }
   }
@@ -135,7 +138,7 @@ export class TalkController {
     ctx.fillStyle = '#fff';
     ctx.font = '15px monospace';
     lines.forEach((line, i) => ctx.fillText(line, r.x + 14, r.y + 44 + i * 20));
-    if (!page.trade) {
+    if (!page.action) {
       ctx.fillStyle = 'rgba(255,255,255,0.6)';
       ctx.font = '12px monospace';
       ctx.textAlign = 'right';
@@ -144,6 +147,29 @@ export class TalkController {
     }
     this.boxRect = r;
   }
+}
+
+/** Top-left list of active quests with progress, below the text HUD. */
+export function drawQuestTracker(ctx: CanvasRenderingContext2D, quests: QuestLog, game: Game, y0 = 34): void {
+  if (quests.active.length === 0) return;
+  ctx.font = '13px monospace';
+  const rows = quests.active.map((q) => {
+    const have = Math.min(game.inventory.counts[q.want.kind], q.want.n);
+    const done = have >= q.want.n;
+    return { text: `${done ? '✔' : '•'} ${q.title}: ${have}/${amount(q.want.kind, q.want.n)}`, done };
+  });
+  const w = Math.max(...rows.map((r) => ctx.measureText(r.text).width)) + 16;
+  const h = 24 + rows.length * 18;
+  ctx.fillStyle = 'rgba(20, 20, 28, 0.72)';
+  ctx.fillRect(8, y0, w, h);
+  ctx.fillStyle = '#ffd866';
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText('QUESTS', 16, y0 + 16);
+  ctx.font = '13px monospace';
+  rows.forEach((r, i) => {
+    ctx.fillStyle = r.done ? '#9be38a' : '#fff';
+    ctx.fillText(r.text, 16, y0 + 34 + i * 18);
+  });
 }
 
 /** Split text into lines that fit `maxWidth`. */

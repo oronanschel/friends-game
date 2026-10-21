@@ -7,7 +7,7 @@ import { type Game, updateEntities } from './game';
 import { Inventory } from './items/items';
 import { ItemSpawner } from './items/pickup';
 import { KnightSpawner } from './knights/spawner';
-import { TalkController, spawnVillagers } from './npc/talk';
+import { TalkController, drawQuestTracker, spawnVillagers } from './npc/talk';
 import { Health, eatBerry } from './player/health';
 import { Player } from './player/player';
 import { PowerStoneSystem, drawPowerAura } from './power/powerWorld';
@@ -82,6 +82,7 @@ game.entities.push(new KnightSpawner()); // chess knights guard the castles
 game.entities.push(powerSystem); // rare power stones and their powers
 spawnVillagers(game, spawn.tx, spawn.ty); // friendly villagers near the start; press E to talk
 const talk = new TalkController(window, canvas);
+saves.register('quests', talk.quests, resume);
 
 // Q eats a berry to restore a heart (E is for talking to NPCs).
 function eat(): void {
@@ -135,6 +136,7 @@ startLoop(
     dayNight.draw(ctx, camera, player.x, player.y);
     drawPowerAura(ctx, camera, powerStones, player.x, player.y);
     talk.draw(ctx, camera);
+    drawQuestTracker(ctx, talk.quests, game, hud.offsetTop + hud.offsetHeight + 6); // below the text HUD
     minimap.draw(ctx, world, player.x, player.y);
     drawInventoryHud(ctx, inventory, canvas.height);
     drawHealthHud(ctx, health, canvas.width, canvas.height);

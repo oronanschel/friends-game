@@ -34,7 +34,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/audio/` | Procedural WebAudio: footsteps, ambient tune, effects via `game.sound?.play('roar')` |
 | `src/ui/` | Overlays such as the minimap |
 | `src/items/` | Collectible coins, berries, mushrooms and gems, placed per chunk from the seed; `game.inventory` holds counts and is saved |
-| `src/npc/` | Villagers near the start: `villagers.ts` (names, lines, trades), `npc.ts` (strolling entity), `dialogue.ts` (conversation and trade logic), `talk.ts` (E to talk, dialogue box) |
+| `src/npc/` | Villagers near the start: `villagers.ts` (names, lines, trades), `npc.ts` (strolling entity), `dialogue.ts` (conversation, trade and quest logic), `quests.ts` (one-time "bring me" quests, saved), `talk.ts` (E to talk, dialogue box, quest tracker) |
 | `src/animals/` | Wildlife: lions that roam grassland, chase you when close and rest after a pounce (outrun them with Shift) |
 | `src/render.ts` | Draws visible tiles and the player |
 | `tests/` | Vitest unit tests |
