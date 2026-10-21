@@ -11,7 +11,7 @@ import {
   isTallCastlePart,
   KEEP,
 } from './world/castles';
-import { drawHero, walkFrame } from './player/sprite';
+import { type HeroColours, drawHero, walkFrame } from './player/sprite';
 import { Decor, drawDecor, isTallDecor } from './world/decor';
 import { hash2 } from './world/noise';
 import { TILE_INFO, Tile } from './world/tiles';
@@ -102,8 +102,80 @@ export function render(
   for (const d of drawables) d.draw?.(ctx, camera);
 }
 
-/** Draw the player as an animated pixel-art hero standing on its collision box. */
+/** Wizard colours for the pixel-art hero: purple robe, silver hair and beard. */
+const WIZARD: HeroColours = {
+  skin: '#f2c9a0',
+  hair: '#e6e9ef',
+  tunic: '#5b2fa0',
+  trousers: '#4a2585',
+  boots: '#2a1a40',
+};
+
+/**
+ * Draw the player as a powerful wizard: the animated pixel-art hero in a robe,
+ * with a pointy starry hat, a white beard, a glowing staff and a turning magic ring.
+ */
 export function drawPlayer(ctx: CanvasRenderingContext2D, camera: Camera, player: Player): void {
   const p = camera.toScreen(player.x, player.y);
-  drawHero(ctx, p.x, p.y + player.size / 2, player.facing, walkFrame(player.walked, player.moving));
+  const footY = p.y + player.size / 2;
+  const frame = walkFrame(player.walked, player.moving);
+  const t = performance.now() / 1000;
+  const P = 2;
+  const ox = Math.round(p.x - 5 * P);
+  const oy = Math.round(footY - 14 * P);
+  const by = frame === 1 || frame === 3 ? 1 : 0;
+  const px = (gx: number, gy: number, w: number, h: number, colour: string) => {
+    ctx.fillStyle = colour;
+    ctx.fillRect(ox + gx * P, oy + gy * P, w * P, h * P);
+  };
+  const f = player.facing;
+
+  // Magic ring under the feet.
+  ctx.strokeStyle = 'rgba(170, 120, 255, 0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 4]);
+  ctx.lineDashOffset = -t * 12;
+  ctx.beginPath();
+  ctx.ellipse(p.x, footY, 15, 6, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Staff behind the body when walking away, otherwise in front.
+  const staffX = f === 'left' ? -1 : 10;
+  const drawStaff = () => {
+    px(staffX, 2 + by, 1, 12 - by, '#7a4a1e');
+    const pulse = 0.75 + 0.25 * Math.sin(t * 5);
+    const cx = ox + staffX * P + P / 2;
+    const cy = oy + (1 + by) * P;
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 9);
+    glow.addColorStop(0, `rgba(255,255,255,${pulse})`);
+    glow.addColorStop(0.4, `rgba(140,220,255,${0.8 * pulse})`);
+    glow.addColorStop(1, 'rgba(120,80,255,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(cx - 9, cy - 9, 18, 18);
+  };
+  if (f === 'up') drawStaff();
+
+  drawHero(ctx, p.x, footY, f, frame, WIZARD, P);
+  // Robe hem over the legs.
+  px(2, 10 + by, 6, 2, WIZARD.tunic);
+  px(2, 11 + by, 6, 1, '#f2c230');
+
+  // White beard.
+  if (f === 'down') px(3, 4 + by, 4, 4, WIZARD.hair);
+  else if (f === 'left') px(2, 4 + by, 2, 3, WIZARD.hair);
+  else if (f === 'right') px(6, 4 + by, 2, 3, WIZARD.hair);
+
+  // Pointy hat with a star, tip bending toward the facing side.
+  const lean = f === 'left' ? -1 : f === 'right' ? 1 : 0;
+  const hat = '#3a1f73';
+  px(0, 0 + by, 10, 1, hat);
+  px(2, -1 + by, 6, 1, hat);
+  px(3, -2 + by, 4, 1, hat);
+  px(3 + lean, -3 + by, 3, 1, hat);
+  px(4 + lean, -4 + by, 2, 1, hat);
+  px(4 + lean * 2, -5 + by, 1, 1, hat);
+  px(4 + lean, -2 + by, 1, 1, '#ffe14d');
+
+  if (f !== 'up') drawStaff();
 }

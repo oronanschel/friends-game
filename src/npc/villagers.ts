@@ -45,7 +45,7 @@ export const VILLAGERS: NpcDef[] = [
     hat: '#7a5230',
     home: { dx: -6, dy: 2 },
     lines: [
-      'Careful out there. Lions roam the open grasslands.',
+      'Fairies flutter over the meadows. Their dust mends your hearts!',
       "They're quick, but if you hold Shift you can outrun them.",
       'Press M if you lose your way.',
     ],

@@ -1,4 +1,4 @@
-import { LionSpawner } from './animals/spawner';
+import { FairySpawner } from './animals/fairies';
 import { Sound } from './audio/sound';
 import { Camera } from './engine/camera';
 import { Input } from './engine/input';
@@ -10,6 +10,7 @@ import { KnightSpawner } from './knights/spawner';
 import { TalkController, drawQuestTracker, spawnVillagers } from './npc/talk';
 import { Health, eatBerry } from './player/health';
 import { Player } from './player/player';
+import { Spellbook } from './player/spell';
 import { PowerStoneSystem, drawPowerAura } from './power/powerWorld';
 import { PowerStones } from './power/stones';
 import { render } from './render';
@@ -66,6 +67,7 @@ canvas.addEventListener('pointerdown', (e) => {
 const touch = new TouchControls(canvas, input, {
   toggleMap: () => (minimap.visible = !minimap.visible),
   eat: () => eat(),
+  cast: () => cast(),
 });
 const dayNight = new DayNight(params.has('time') && Number.isFinite(timeParam) ? timeParam : undefined);
 
@@ -78,7 +80,7 @@ saves.register('health', health, resume);
 const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume, sound, health };
 
 game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
-game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
+game.entities.push(new FairySpawner()); // cute fairies flutter over the meadows
 game.entities.push(new KnightSpawner()); // chess knights guard the castles
 game.entities.push(powerSystem); // rare power stones and their powers
 game.entities.push(new Wizard(player.x, player.y, seed)); // a wizard follows you and throws spells
@@ -86,12 +88,19 @@ spawnVillagers(game, spawn.tx, spawn.ty); // friendly villagers near the start; 
 const talk = new TalkController(window, canvas);
 saves.register('quests', talk.quests, resume);
 
+// F casts a magic bolt: the player is a powerful wizard.
+const spells = new Spellbook();
+function cast(): void {
+  if (health.awake) spells.cast(player, game);
+}
+
 // Q eats a berry to restore a heart (E is for talking to NPCs).
 function eat(): void {
   if (eatBerry(health, inventory)) sound.play('pickup');
 }
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyQ' && !e.repeat) eat();
+  if (e.code === 'KeyF') cast();
 });
 (window as unknown as { game: Game }).game = game; // handy in the browser console
 
@@ -118,6 +127,7 @@ startLoop(
   (dt) => {
     const px = player.x;
     const py = player.y;
+    spells.update(dt);
     if (health.update(dt)) {
       // Woke up from fainting: back to the start with full hearts.
       player.x = (spawn.tx + 0.5) * TILE_SIZE;
@@ -146,6 +156,6 @@ startLoop(
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, E to talk, M for map, Q to eat a berry, 1/2/3 power stones, V for sound${sound.muted ? ' (muted)' : ''}`;
+    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, F to cast a spell, E to talk, M for map, Q to eat a berry, 1/2/3 power stones, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );

@@ -22,7 +22,7 @@ export interface StoneInfo {
 export const STONE_INFO: Record<StoneKind, StoneInfo> = {
   [StoneKind.Swift]: { name: 'Swift stone', effect: 'Run faster', key: '1', duration: 12, color: '#ff8a1f', glow: '255,170,60' },
   [StoneKind.Magnet]: { name: 'Magnet stone', effect: 'Pull in items', key: '2', duration: 15, color: '#b04dff', glow: '200,120,255' },
-  [StoneKind.Ward]: { name: 'Lion ward', effect: 'Lions keep away', key: '3', duration: 15, color: '#3fa9ff', glow: '120,200,255' },
+  [StoneKind.Ward]: { name: 'Fairy call', effect: 'Fairies come to you', key: '3', duration: 15, color: '#3fa9ff', glow: '120,200,255' },
 };
 
 export const STONE_ORDER: StoneKind[] = [StoneKind.Swift, StoneKind.Magnet, StoneKind.Ward];

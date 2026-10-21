@@ -19,6 +19,8 @@ export interface Entity {
   draw?(ctx: CanvasRenderingContext2D, camera: Camera): void;
   /** Set to true to have the entity removed at the end of the frame. */
   dead?: boolean;
+  /** Called when a wizard spell (see `src/player/spell.ts`) hits this entity. */
+  onSpellHit?(game: Game): void;
 }
 
 /** Shared game state passed to entities and features. */

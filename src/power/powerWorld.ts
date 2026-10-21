@@ -1,4 +1,4 @@
-import { LION, Lion } from '../animals/lion';
+import { FAIRY, Fairy } from '../animals/fairy';
 import type { Camera } from '../engine/camera';
 import type { Entity, Game } from '../game';
 import { PICKUP_RANGE, WorldItem } from '../items/pickup';
@@ -8,8 +8,8 @@ import { type PowerStones, STONE_INFO, STONE_ORDER, StoneKind, type StoneSpot, s
 /** How far the Magnet stone reaches, and how fast items fly in (world pixels, per second). */
 export const MAGNET_RANGE = 7 * TILE_SIZE;
 const MAGNET_SPEED = 320;
-/** Lions inside this distance turn away while the Lion ward is active. */
-export const WARD_RANGE = LION.noticeRange + 2 * TILE_SIZE;
+/** Fairies inside this distance fly over while the Fairy call is active. */
+export const WARD_RANGE = FAIRY.giveUpRange - TILE_SIZE;
 const SPAWN_RADIUS = 1;
 const DESPAWN_RADIUS = 2;
 
@@ -121,7 +121,7 @@ export class PowerStoneSystem implements Entity {
     game.player.speed = this.baseSpeed * this.stones.speedMultiplier;
 
     if (this.stones.isActive(StoneKind.Magnet)) this.pullItems(dt, game);
-    if (this.stones.isActive(StoneKind.Ward)) this.wardLions(dt, game);
+    if (this.stones.isActive(StoneKind.Ward)) this.callFairies(game);
     this.keepStonesNearby(game);
   }
 
@@ -139,19 +139,14 @@ export class PowerStoneSystem implements Entity {
     }
   }
 
-  private wardLions(dt: number, game: Game): void {
-    const { player, world } = game;
+  private callFairies(game: Game): void {
+    const { player } = game;
     for (const e of game.entities) {
-      if (!(e instanceof Lion)) continue;
-      const dx = e.x - player.x;
-      const dy = e.y - player.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist > WARD_RANGE) continue;
-      // Calm the lion and walk it away from the player.
-      e.state = 'rest';
-      e.timer = Math.max(e.timer, 1);
-      const away = dist > 0 ? { x: dx / dist, y: dy / dist } : { x: 1, y: 0 };
-      e.move(away.x * LION.wanderSpeed * 2 * dt, away.y * LION.wanderSpeed * 2 * dt, world);
+      if (!(e instanceof Fairy) || e.state !== 'wander' || e.cooldown > 0) continue;
+      if (Math.hypot(e.x - player.x, e.y - player.y) > WARD_RANGE) continue;
+      // Summoned: fly over to visit the player.
+      e.state = 'visit';
+      e.say('Coming!');
     }
   }
 
