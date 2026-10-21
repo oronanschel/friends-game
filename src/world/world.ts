@@ -1,3 +1,4 @@
+import { CASTLE_CELL, type Castle, CastlePart, castlePartAt, findCastle, isNearCastle, isSolidCastlePart } from './castles';
 import { Decor, chooseDecor, isSolidDecor } from './decor';
 import { fractalNoise } from './noise';
 import { Tile, isSolid } from './tiles';
@@ -26,8 +27,30 @@ export function classify(elevation: number, moisture: number): Tile {
 export class World {
   private chunks = new Map<string, Uint8Array>();
   private decorChunks = new Map<string, Uint8Array>();
+  private castles = new Map<string, Castle | null>();
 
   constructor(readonly seed: number) {}
+
+  /** The castle whose placement cell contains tile (tx, ty), if that cell has one. */
+  castleInCellOf(tx: number, ty: number): Castle | null {
+    const cx = Math.floor(tx / CASTLE_CELL);
+    const cy = Math.floor(ty / CASTLE_CELL);
+    const key = `${cx},${cy}`;
+    let castle = this.castles.get(key);
+    if (castle === undefined) {
+      castle = findCastle(cx, cy, this.seed, (x, y) => this.getTile(x, y));
+      this.castles.set(key, castle);
+    }
+    return castle;
+  }
+
+  /** The castle and castle part on tile (tx, ty), or null when no castle stands there. */
+  castleAt(tx: number, ty: number): { castle: Castle; part: CastlePart } | null {
+    const castle = this.castleInCellOf(tx, ty);
+    if (!castle) return null;
+    const part = castlePartAt(castle, tx, ty);
+    return part === CastlePart.None ? null : { castle, part };
+  }
 
   /** Tile at integer tile coordinates. */
   getTile(tx: number, ty: number): Tile {
@@ -51,7 +74,10 @@ export class World {
         for (let lx = 0; lx < CHUNK_SIZE; lx++) {
           const x = cx * CHUNK_SIZE + lx;
           const y = cy * CHUNK_SIZE + ly;
-          decor[ly * CHUNK_SIZE + lx] = chooseDecor(this.getTile(x, y), x, y, this.seed);
+          const castle = this.castleInCellOf(x, y);
+          // Castles and the ring around them stay clear, so the gate is never blocked.
+          decor[ly * CHUNK_SIZE + lx] =
+            castle && isNearCastle(castle, x, y) ? Decor.None : chooseDecor(this.getTile(x, y), x, y, this.seed);
         }
       }
       this.decorChunks.set(key, decor);
@@ -59,9 +85,11 @@ export class World {
     return decor[(ty - cy * CHUNK_SIZE) * CHUNK_SIZE + (tx - cx * CHUNK_SIZE)] as Decor;
   }
 
-  /** Whether the tile at the given tile coordinates blocks movement (terrain or decor). */
+  /** Whether the tile at the given tile coordinates blocks movement (terrain, decor or castle). */
   isSolidAt(tx: number, ty: number): boolean {
-    return isSolid(this.getTile(tx, ty)) || isSolidDecor(this.getDecor(tx, ty));
+    if (isSolid(this.getTile(tx, ty)) || isSolidDecor(this.getDecor(tx, ty))) return true;
+    const here = this.castleAt(tx, ty);
+    return here !== null && isSolidCastlePart(here.part);
   }
 
   /** Number of chunks generated so far (for debugging/HUD). */
