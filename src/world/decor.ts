@@ -33,7 +33,11 @@ export function chooseDecor(tile: Tile, tx: number, ty: number, seed: number): D
   let d = Decor.None;
   switch (tile) {
     case Tile.Forest:
-      d = r < 0.38 ? Decor.Tree : r < 0.46 ? Decor.Bush : Decor.None;
+      // Mostly leafy trees with some pines mixed in.
+      d = r < 0.07 ? Decor.PineTree : r < 0.38 ? Decor.Tree : r < 0.46 ? Decor.Bush : Decor.None;
+      break;
+    case Tile.Taiga:
+      d = r < 0.45 ? Decor.PineTree : r < 0.49 ? Decor.Boulder : r < 0.53 ? Decor.Bush : Decor.None;
       break;
     case Tile.Grass:
       d = r < 0.025 ? Decor.Tree : r < 0.05 ? Decor.Bush : r < 0.13 ? Decor.Flowers : Decor.None;
