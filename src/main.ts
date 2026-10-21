@@ -59,12 +59,12 @@ const health = new Health();
 saves.register('health', health, resume);
 const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume, sound, health };
 
-// E eats a berry to restore a heart.
+// Q eats a berry to restore a heart (E is for talking to NPCs).
 function eat(): void {
   if (eatBerry(health, inventory)) sound.play('pickup');
 }
 window.addEventListener('keydown', (e) => {
-  if (e.code === 'KeyE' && !e.repeat) eat();
+  if (e.code === 'KeyQ' && !e.repeat) eat();
 });
 game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
 game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
@@ -115,6 +115,6 @@ startLoop(
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map, E to eat a berry, V for sound${sound.muted ? ' (muted)' : ''}`;
+    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map, Q to eat a berry, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );
