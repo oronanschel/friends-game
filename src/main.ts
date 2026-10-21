@@ -4,6 +4,7 @@ import { startLoop } from './engine/loop';
 import { type Game, updateEntities } from './game';
 import { Player } from './player/player';
 import { render } from './render';
+import { Minimap } from './ui/minimap';
 import { TILE_SIZE, World } from './world/world';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
@@ -20,6 +21,7 @@ const player = new Player((spawn.tx + 0.5) * TILE_SIZE, (spawn.ty + 0.5) * TILE_
 const camera = new Camera(window.innerWidth, window.innerHeight);
 camera.follow(player.x, player.y);
 const input = new Input();
+const minimap = new Minimap();
 
 // Shared state: features add NPCs, items, etc. to `game.entities`.
 const game: Game = { world, player, camera, input, entities: [] };
@@ -43,8 +45,9 @@ startLoop(
   },
   () => {
     render(ctx, world, camera, player, game.entities);
+    minimap.draw(ctx, world, player.x, player.y);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run`;
+    hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map`;
   },
 );
