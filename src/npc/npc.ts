@@ -30,7 +30,7 @@ export class Npc implements Entity {
   /** While true the NPC stands still and faces the player. */
   talking = false;
   facingLeft = false;
-  private step = 0;
+  protected step = 0;
   private random: () => number;
 
   constructor(

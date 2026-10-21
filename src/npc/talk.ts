@@ -4,7 +4,7 @@ import { TILE_SIZE } from '../world/world';
 import { Dialogue } from './dialogue';
 import { Npc } from './npc';
 import { QuestLog, amount } from './quests';
-import { VILLAGERS } from './villagers';
+import { LUIGI, MARIO, VILLAGERS } from './villagers';
 
 /** How close the player must be to talk to an NPC. */
 export const TALK_RANGE = 1.6 * TILE_SIZE;
@@ -45,7 +45,7 @@ const inside = (r: Rect | null, x: number, y: number) =>
 export class TalkController {
   readonly dialogue = new Dialogue();
   /** Accepted and finished villager quests; register with `game.saves` to persist. */
-  readonly quests = new QuestLog(VILLAGERS.flatMap((v) => (v.quest ? [v.quest] : [])));
+  readonly quests = new QuestLog([...VILLAGERS, MARIO, LUIGI].flatMap((v) => (v.quest ? [v.quest] : [])));
   /** NPC currently in talking range (or being talked to). */
   target: Npc | null = null;
   private pending: ('confirm' | 'cancel')[] = [];
