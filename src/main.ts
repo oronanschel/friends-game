@@ -20,6 +20,7 @@ import { DayNight } from './ui/daynight';
 import { Minimap } from './ui/minimap';
 import { drawStoneHud, stoneSlotAt } from './ui/stoneHud';
 import { TouchControls } from './ui/touch';
+import { Wizard } from './wizard/wizard';
 import { TILE_SIZE, World } from './world/world';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
@@ -80,6 +81,7 @@ game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and
 game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
 game.entities.push(new KnightSpawner()); // chess knights guard the castles
 game.entities.push(powerSystem); // rare power stones and their powers
+game.entities.push(new Wizard(player.x, player.y, seed)); // a wizard follows you and throws spells
 spawnVillagers(game, spawn.tx, spawn.ty); // friendly villagers near the start; press E to talk
 const talk = new TalkController(window, canvas);
 
