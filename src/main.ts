@@ -3,9 +3,12 @@ import { Camera } from './engine/camera';
 import { Input } from './engine/input';
 import { startLoop } from './engine/loop';
 import { type Game, updateEntities } from './game';
+import { Inventory } from './items/items';
+import { ItemSpawner } from './items/pickup';
 import { Player } from './player/player';
 import { render } from './render';
 import { SaveManager, chooseStart } from './save/save';
+import { drawInventoryHud } from './ui/inventoryHud';
 import { Minimap } from './ui/minimap';
 import { TouchControls } from './ui/touch';
 import { TILE_SIZE, World } from './world/world';
@@ -39,7 +42,10 @@ const minimap = new Minimap();
 const touch = new TouchControls(canvas, input, { toggleMap: () => (minimap.visible = !minimap.visible) });
 
 // Shared state: features add NPCs, items, etc. to `game.entities`.
-const game: Game = { world, player, camera, input, entities: [], saves, resume };
+const inventory = new Inventory();
+saves.register('inventory', inventory, resume);
+const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume };
+game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
 game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
 (window as unknown as { game: Game }).game = game; // handy in the browser console
 
@@ -71,6 +77,7 @@ startLoop(
   () => {
     render(ctx, world, camera, player, game.entities);
     minimap.draw(ctx, world, player.x, player.y);
+    drawInventoryHud(ctx, inventory, canvas.height);
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
