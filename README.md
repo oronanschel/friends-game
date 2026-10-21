@@ -7,6 +7,7 @@ Build a 2D top-down open-world browser game together.
 ```sh
 npm install
 npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run, M toggles the minimap
+                 # on phones: drag on the left half to move, RUN / MAP buttons on the right
 npm test         # unit tests (Vitest)
 npm run build    # type-check + production build into dist/
 ```

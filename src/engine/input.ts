@@ -1,6 +1,10 @@
 /** Tracks which keys are currently held down. */
 export class Input {
   private down = new Set<string>();
+  /** Analog direction from on-screen controls, each axis in [-1, 1]. */
+  virtualAxis = { x: 0, y: 0 };
+  /** Run button held on on-screen controls. */
+  virtualRun = false;
 
   constructor(target: Window = window) {
     target.addEventListener('keydown', (e) => this.down.add(e.code));
@@ -14,10 +18,10 @@ export class Input {
 
   /** Whether a run key (Shift) is held. */
   running(): boolean {
-    return this.isDown('ShiftLeft') || this.isDown('ShiftRight');
+    return this.virtualRun || this.isDown('ShiftLeft') || this.isDown('ShiftRight');
   }
 
-  /** Movement direction from WASD / arrow keys, each axis in {-1, 0, 1}. */
+  /** Movement direction from WASD / arrow keys, or the on-screen joystick when no key is held. */
   axis(): { x: number; y: number } {
     const x =
       (this.isDown('KeyD') || this.isDown('ArrowRight') ? 1 : 0) -
@@ -25,6 +29,7 @@ export class Input {
     const y =
       (this.isDown('KeyS') || this.isDown('ArrowDown') ? 1 : 0) -
       (this.isDown('KeyW') || this.isDown('ArrowUp') ? 1 : 0);
+    if (x === 0 && y === 0) return { ...this.virtualAxis };
     return { x, y };
   }
 }
