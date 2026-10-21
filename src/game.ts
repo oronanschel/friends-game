@@ -1,5 +1,6 @@
 import type { Camera } from './engine/camera';
 import type { Input } from './engine/input';
+import type { Inventory } from './items/items';
 import type { Player } from './player/player';
 import type { SaveData, SaveManager } from './save/save';
 import type { World } from './world/world';
@@ -25,6 +26,8 @@ export interface Game {
   camera: Camera;
   input: Input;
   entities: Entity[];
+  /** What the player carries: `game.inventory.counts.coin`, `game.inventory.take(kind, n)`. */
+  inventory: Inventory;
   /** Register feature state to persist: `game.saves.register('inventory', { save, load }, game.resume)`. */
   saves: SaveManager;
   /** The save this session continued from, if any. */
