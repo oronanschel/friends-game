@@ -76,7 +76,9 @@ export class World {
         const ty = cy * CHUNK_SIZE + ly;
         // Raise land around the origin so the spawn is never a tiny island.
         const spawnBoost = 0.3 * Math.max(0, 1 - Math.hypot(tx, ty) / 24);
-        const elevation = Math.min(0.66, fractalNoise(tx / 64, ty / 64, this.seed, 5) + spawnBoost);
+        const base = fractalNoise(tx / 64, ty / 64, this.seed, 5);
+        // Near spawn, also keep mountains away so the start area is walkable.
+        const elevation = spawnBoost > 0 ? Math.min(0.66, base + spawnBoost) : base;
         const moisture = fractalNoise(tx / 48, ty / 48, this.seed + 7777, 3);
         data[ly * CHUNK_SIZE + lx] = classify(elevation, moisture);
       }

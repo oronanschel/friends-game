@@ -49,3 +49,16 @@ describe('spawn area', () => {
     }
   });
 });
+
+describe('biomes', () => {
+  it('produces every land and water tile type somewhere', () => {
+    const w = new World(1337);
+    const seen = new Set<Tile>();
+    for (let ty = -400; ty < 400; ty += 3) {
+      for (let tx = -400; tx < 400; tx += 3) seen.add(w.getTile(tx, ty));
+    }
+    for (const t of [Tile.DeepWater, Tile.Water, Tile.Sand, Tile.Grass, Tile.Forest, Tile.Rock, Tile.Snow]) {
+      expect(seen.has(t)).toBe(true);
+    }
+  });
+});
