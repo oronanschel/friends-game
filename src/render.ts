@@ -1,6 +1,16 @@
 import { Camera } from './engine/camera';
 import type { Entity } from './game';
 import type { Player } from './player/player';
+import {
+  CASTLE_HEIGHT,
+  type Castle,
+  CastlePart,
+  drawCastleGround,
+  drawCastleWall,
+  drawKeep,
+  isTallCastlePart,
+  KEEP,
+} from './world/castles';
 import { Decor, drawDecor, isTallDecor } from './world/decor';
 import { hash2 } from './world/noise';
 import { TILE_INFO, Tile } from './world/tiles';
@@ -43,10 +53,33 @@ export function render(
 
   // Ground tiles and flat decor (flowers, bushes, ...).
   const drawables: Pick<Entity, 'y' | 'draw'>[] = [...entities, player];
-  for (let ty = ty0; ty <= ty1 + 1; ty++) {
+  const keeps = new Set<Castle>();
+  // Walls and keeps rise above their tiles, so look a few rows below the screen too.
+  for (let ty = ty0; ty <= ty1 + CASTLE_HEIGHT; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
       const sx = tx * TILE_SIZE + ox;
       const sy = ty * TILE_SIZE + oy;
+      const castle = world.castleAt(tx, ty);
+      if (castle) {
+        const { castle: c, part } = castle;
+        if (isTallCastlePart(part)) {
+          const baseY = (ty + 1) * TILE_SIZE - 4;
+          drawables.push({ y: baseY, draw: (cx) => drawCastleWall(cx, part, sx, sy, TILE_SIZE) });
+        } else {
+          drawCastleGround(ctx, CastlePart.Floor, sx, sy, TILE_SIZE);
+          if (part === CastlePart.Gate) drawCastleGround(ctx, part, sx, sy, TILE_SIZE);
+          if (part === CastlePart.Keep && !keeps.has(c)) {
+            // The keep is one big building: draw it once, sorted by its front edge.
+            keeps.add(c);
+            const kx = c.tx * TILE_SIZE + ox;
+            const ky = c.ty * TILE_SIZE + oy;
+            const baseY = (c.ty + KEEP.y + KEEP.h) * TILE_SIZE - 4;
+            drawables.push({ y: baseY, draw: (cx) => drawKeep(cx, c, kx, ky, TILE_SIZE) });
+          }
+        }
+        continue;
+      }
+      if (ty > ty1 + 1) continue;
       const tile: Tile = world.getTile(tx, ty);
       const variant = hash2(tx, ty, world.seed);
       ctx.fillStyle = SHADES[tile][Math.floor(variant * 4)];

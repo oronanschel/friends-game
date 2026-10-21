@@ -1,3 +1,4 @@
+import { isSolidCastlePart } from '../world/castles';
 import { TILE_INFO, Tile } from '../world/tiles';
 import { TILE_SIZE, World } from '../world/world';
 
@@ -9,6 +10,9 @@ function rgb(hex: string): [number, number, number] {
 
 const TILE_RGB: Record<number, [number, number, number]> = {};
 for (const [tile, info] of Object.entries(TILE_INFO)) TILE_RGB[Number(tile)] = rgb(info.color);
+/** Castles stand out on the map: light stone walls around a darker courtyard. */
+const CASTLE_RGB = rgb('#f0e9dc');
+const COURTYARD_RGB = rgb('#8f887c');
 
 /**
  * RGBA pixels for a `size`×`size` tile area centred on tile (cx, cy),
@@ -20,7 +24,8 @@ export function minimapPixels(world: World, cx: number, cy: number, size: number
   const y0 = cy - Math.floor(size / 2);
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      const [r, g, b] = TILE_RGB[world.getTile(x0 + x, y0 + y) as Tile];
+      const castle = world.castleAt(x0 + x, y0 + y);
+      const [r, g, b] = castle ? (isSolidCastlePart(castle.part) ? CASTLE_RGB : COURTYARD_RGB) : TILE_RGB[world.getTile(x0 + x, y0 + y) as Tile];
       const i = (y * size + x) * 4;
       px[i] = r;
       px[i + 1] = g;
