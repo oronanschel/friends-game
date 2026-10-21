@@ -1,3 +1,4 @@
+import { Decor, chooseDecor, isSolidDecor } from './decor';
 import { fractalNoise } from './noise';
 import { Tile, isSolid } from './tiles';
 
@@ -22,6 +23,7 @@ export function classify(elevation: number, moisture: number): Tile {
  */
 export class World {
   private chunks = new Map<string, Uint8Array>();
+  private decorChunks = new Map<string, Uint8Array>();
 
   constructor(readonly seed: number) {}
 
@@ -35,9 +37,29 @@ export class World {
     return chunk[ly * CHUNK_SIZE + lx] as Tile;
   }
 
-  /** Whether the tile at the given tile coordinates blocks movement. */
+  /** Decoration (tree, bush, ...) on the tile at integer tile coordinates. */
+  getDecor(tx: number, ty: number): Decor {
+    const cx = Math.floor(tx / CHUNK_SIZE);
+    const cy = Math.floor(ty / CHUNK_SIZE);
+    const key = `${cx},${cy}`;
+    let decor = this.decorChunks.get(key);
+    if (!decor) {
+      decor = new Uint8Array(CHUNK_SIZE * CHUNK_SIZE);
+      for (let ly = 0; ly < CHUNK_SIZE; ly++) {
+        for (let lx = 0; lx < CHUNK_SIZE; lx++) {
+          const x = cx * CHUNK_SIZE + lx;
+          const y = cy * CHUNK_SIZE + ly;
+          decor[ly * CHUNK_SIZE + lx] = chooseDecor(this.getTile(x, y), x, y, this.seed);
+        }
+      }
+      this.decorChunks.set(key, decor);
+    }
+    return decor[(ty - cy * CHUNK_SIZE) * CHUNK_SIZE + (tx - cx * CHUNK_SIZE)] as Decor;
+  }
+
+  /** Whether the tile at the given tile coordinates blocks movement (terrain or decor). */
   isSolidAt(tx: number, ty: number): boolean {
-    return isSolid(this.getTile(tx, ty));
+    return isSolid(this.getTile(tx, ty)) || isSolidDecor(this.getDecor(tx, ty));
   }
 
   /** Number of chunks generated so far (for debugging/HUD). */
