@@ -1,4 +1,5 @@
 import { LionSpawner } from './animals/spawner';
+import { Sound } from './audio/sound';
 import { Camera } from './engine/camera';
 import { Input } from './engine/input';
 import { startLoop } from './engine/loop';
@@ -42,9 +43,10 @@ const minimap = new Minimap();
 const touch = new TouchControls(canvas, input, { toggleMap: () => (minimap.visible = !minimap.visible) });
 
 // Shared state: features add NPCs, items, etc. to `game.entities`.
+const sound = new Sound();
 const inventory = new Inventory();
 saves.register('inventory', inventory, resume);
-const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume };
+const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume, sound };
 game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
 game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
 (window as unknown as { game: Game }).game = game; // handy in the browser console
@@ -70,7 +72,11 @@ resize();
 
 startLoop(
   (dt) => {
+    const px = player.x;
+    const py = player.y;
     player.update(dt, input.axis(), world, input.running());
+    const tile = world.getTile(Math.floor(player.x / TILE_SIZE), Math.floor(player.y / TILE_SIZE));
+    sound.update(Math.hypot(player.x - px, player.y - py), tile, input.running());
     updateEntities(game, dt);
     camera.follow(player.x, player.y, 0.15);
   },
@@ -81,6 +87,6 @@ startLoop(
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map`;
+    hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );

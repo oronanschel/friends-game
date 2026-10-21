@@ -86,6 +86,7 @@ export class WorldItem implements Entity {
     this.t += dt;
     if (Math.hypot(game.player.x - this.x, game.player.y - this.y) < PICKUP_RANGE) {
       this.inventory.add(this.spot.kind, this.spot.id, performance.now());
+      game.sound?.play('pickup');
       this.dead = true;
       game.entities.push(new PickupPopup(this.spot.kind, this.x, this.y));
     }

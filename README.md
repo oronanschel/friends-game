@@ -6,7 +6,7 @@ Build a 2D top-down open-world browser game together.
 
 ```sh
 npm install
-npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run, M toggles the minimap
+npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run, M toggles the minimap, V mutes sound
                  # on phones: drag on the left half to move, RUN / MAP buttons on the right
 npm test         # unit tests (Vitest)
 npm run build    # type-check + production build into dist/
@@ -31,6 +31,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/world/` | Endless procedural world: `noise.ts`, `tiles.ts` (tile types, colours, solidity), `decor.ts` (trees, pines, bushes, flowers), `world.ts` (chunked generation, `getTile`, `getDecor`, `isSolidAt`) |
 | `src/player/` | Player movement and tile collision |
 | `src/save/` | Auto-save to localStorage; features persist state with `game.saves.register(key, { save, load }, game.resume)` |
+| `src/audio/` | Procedural WebAudio: footsteps, ambient tune, effects via `game.sound?.play('roar')` |
 | `src/ui/` | Overlays such as the minimap |
 | `src/items/` | Collectible coins, berries, mushrooms and gems, placed per chunk from the seed; `game.inventory` holds counts and is saved |
 | `src/animals/` | Wildlife: lions that roam grassland, chase you when close and rest after a pounce (outrun them with Shift) |
