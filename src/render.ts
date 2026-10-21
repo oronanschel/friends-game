@@ -1,5 +1,6 @@
 import { Camera } from './engine/camera';
 import type { Entity } from './game';
+import { drawDwarf } from './player/dwarf';
 import type { Player } from './player/player';
 import {
   CASTLE_HEIGHT,
@@ -11,7 +12,6 @@ import {
   isTallCastlePart,
   KEEP,
 } from './world/castles';
-import { drawHero, walkFrame } from './player/sprite';
 import { Decor, drawDecor, isTallDecor } from './world/decor';
 import { hash2 } from './world/noise';
 import { TILE_INFO, Tile } from './world/tiles';
@@ -102,8 +102,10 @@ export function render(
   for (const d of drawables) d.draw?.(ctx, camera);
 }
 
-/** Draw the player as an animated pixel-art hero standing on its collision box. */
+/**
+ * Draw the player as a dwarf warrior (`player/dwarf.ts`), animated from the player's walk distance.
+ * The earlier pixel-art hero (`drawHero` in `player/sprite.ts`) is still there if the team wants it back.
+ */
 export function drawPlayer(ctx: CanvasRenderingContext2D, camera: Camera, player: Player): void {
-  const p = camera.toScreen(player.x, player.y);
-  drawHero(ctx, p.x, p.y + player.size / 2, player.facing, walkFrame(player.walked, player.moving));
+  drawDwarf(ctx, camera, player);
 }
