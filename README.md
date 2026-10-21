@@ -6,7 +6,7 @@ Build a 2D top-down open-world browser game together.
 
 ```sh
 npm install
-npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run, M toggles the minimap, V mutes sound
+npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run, E talks to villagers, Q eats a berry, M toggles the minimap, V mutes sound
                  # on phones: drag on the left half to move, RUN / MAP buttons on the right
 npm test         # unit tests (Vitest)
 npm run build    # type-check + production build into dist/
@@ -34,6 +34,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/audio/` | Procedural WebAudio: footsteps, ambient tune, effects via `game.sound?.play('roar')` |
 | `src/ui/` | Overlays such as the minimap |
 | `src/items/` | Collectible coins, berries, mushrooms and gems, placed per chunk from the seed; `game.inventory` holds counts and is saved |
+| `src/npc/` | Villagers near the start: `villagers.ts` (names, lines, trades), `npc.ts` (strolling entity), `dialogue.ts` (conversation and trade logic), `talk.ts` (E to talk, dialogue box) |
 | `src/animals/` | Wildlife: lions that roam grassland, chase you when close and rest after a pounce (outrun them with Shift) |
 | `src/render.ts` | Draws visible tiles and the player |
 | `tests/` | Vitest unit tests |
