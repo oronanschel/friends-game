@@ -68,9 +68,12 @@ export class Lion implements Entity {
     this.roar = Math.max(0, this.roar - dt);
     this.timer -= dt;
 
+    // Lions lose interest in a fainted player.
+    if (game.health && !game.health.awake && this.state === 'chase') this.rest();
+
     switch (this.state) {
       case 'wander':
-        if (dist < LION.noticeRange) {
+        if (dist < LION.noticeRange && (game.health?.awake ?? true)) {
           this.state = 'chase';
           this.timer = LION.maxChaseTime;
           this.roar = LION.roarTime;
@@ -89,8 +92,9 @@ export class Lion implements Entity {
 
       case 'chase':
         if (dist < LION.catchRange) {
-          // Pounce: knock the player back and lose interest for a while.
+          // Pounce: cost a heart, knock the player back and lose interest for a while.
           const away = dist > 0 ? { x: dx / dist, y: dy / dist } : { x: 1, y: 0 };
+          game.health?.hurt();
           player.update(0.2, away, world, true);
           this.roar = LION.roarTime;
           game.sound?.play('pounce');
