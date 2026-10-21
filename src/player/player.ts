@@ -1,0 +1,51 @@
+import { TILE_SIZE, World } from '../world/world';
+
+/** The player: an axis-aligned box that moves and collides with solid tiles. */
+export class Player {
+  /** Width/height of the collision box in world pixels. */
+  readonly size = 20;
+  /** Movement speed in world pixels per second. */
+  speed = 160;
+  facing: 'up' | 'down' | 'left' | 'right' = 'down';
+
+  constructor(public x: number, public y: number) {}
+
+  /** Move by input direction for `dt` seconds, resolving collisions per axis. */
+  update(dt: number, dir: { x: number; y: number }, world: World): void {
+    let { x: dx, y: dy } = dir;
+    if (dx !== 0 && dy !== 0) {
+      dx *= Math.SQRT1_2;
+      dy *= Math.SQRT1_2;
+    }
+    if (dx > 0) this.facing = 'right';
+    else if (dx < 0) this.facing = 'left';
+    else if (dy > 0) this.facing = 'down';
+    else if (dy < 0) this.facing = 'up';
+
+    // Move in small sub-steps so large moves can't tunnel through walls.
+    const mx = dx * this.speed * dt;
+    const my = dy * this.speed * dt;
+    const steps = Math.max(1, Math.ceil(Math.max(Math.abs(mx), Math.abs(my)) / 4));
+    for (let i = 0; i < steps; i++) {
+      const nx = this.x + mx / steps;
+      if (!this.collides(nx, this.y, world)) this.x = nx;
+      const ny = this.y + my / steps;
+      if (!this.collides(this.x, ny, world)) this.y = ny;
+    }
+  }
+
+  /** Whether the box centred at (cx, cy) overlaps any solid tile. */
+  collides(cx: number, cy: number, world: World): boolean {
+    const half = this.size / 2;
+    const x0 = Math.floor((cx - half) / TILE_SIZE);
+    const x1 = Math.floor((cx + half - 0.001) / TILE_SIZE);
+    const y0 = Math.floor((cy - half) / TILE_SIZE);
+    const y1 = Math.floor((cy + half - 0.001) / TILE_SIZE);
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        if (world.isSolidAt(tx, ty)) return true;
+      }
+    }
+    return false;
+  }
+}
