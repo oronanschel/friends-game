@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LION, Lion } from '../src/animals/lion';
+import { FAIRY, Fairy } from '../src/animals/fairy';
 import { type Game, updateEntities } from '../src/game';
 import { Inventory, ItemKind } from '../src/items/items';
 import { WorldItem } from '../src/items/pickup';
@@ -113,15 +113,16 @@ describe('PowerStoneSystem', () => {
     expect(far.spot.x).toBe(MAGNET_RANGE * 2);
   });
 
-  it('Lion ward stops a chase and walks the lion away', () => {
+  it('Fairy call summons fairies from beyond their usual notice range', () => {
     const stones = new PowerStones();
     stones.add(StoneKind.Ward, 'a');
-    const lion = new Lion(LION.noticeRange - 20, 0, 7);
-    const { game, system } = gameWith(stones, [lion]);
+    const start = FAIRY.noticeRange * 1.5;
+    const fairy = new Fairy(start, 0, 7);
+    const { game, system } = gameWith(stones, [fairy]);
     system.request(StoneKind.Ward);
-    tick(game, 3);
-    expect(lion.state).not.toBe('chase');
-    expect(lion.x).toBeGreaterThan(LION.noticeRange - 20);
+    tick(game, 0.2);
+    expect(fairy.state).toBe('visit');
+    expect(fairy.x).toBeLessThan(start);
   });
 });
 
