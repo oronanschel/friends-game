@@ -14,6 +14,8 @@ export function classify(elevation: number, moisture: number): Tile {
   if (elevation < 0.43) return Tile.Sand;
   if (elevation > 0.78) return Tile.Snow;
   if (elevation > 0.68) return Tile.Rock;
+  // High ground below the rock line grows pine forest unless it is dry.
+  if (elevation > 0.58 && moisture > 0.4) return Tile.Taiga;
   return moisture > 0.55 ? Tile.Forest : Tile.Grass;
 }
 

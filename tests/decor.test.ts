@@ -42,3 +42,26 @@ describe('decor', () => {
     expect(found).toBe(true);
   });
 });
+
+describe('pine forests', () => {
+  it('grows dense pines in taiga and some pines in regular forest', () => {
+    let taigaPines = 0;
+    let forestPines = 0;
+    for (let i = 0; i < 1000; i++) {
+      if (chooseDecor(Tile.Taiga, 100 + i, 70, 1) === Decor.PineTree) taigaPines++;
+      if (chooseDecor(Tile.Forest, 100 + i, 70, 1) === Decor.PineTree) forestPines++;
+    }
+    expect(taigaPines).toBeGreaterThan(300);
+    expect(forestPines).toBeGreaterThan(20);
+    expect(forestPines).toBeLessThan(150);
+  });
+
+  it('pine forests are common enough to find near spawn', () => {
+    const w = new World(1337);
+    let pines = 0;
+    for (let ty = -200; ty < 200; ty += 2) {
+      for (let tx = -200; tx < 200; tx += 2) if (w.getDecor(tx, ty) === Decor.PineTree) pines++;
+    }
+    expect(pines).toBeGreaterThan(500);
+  });
+});

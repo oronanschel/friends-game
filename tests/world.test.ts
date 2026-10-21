@@ -39,6 +39,8 @@ describe('World', () => {
     expect(classify(0.1, 0.5)).toBe(Tile.DeepWater);
     expect(classify(0.9, 0.5)).toBe(Tile.Snow);
     expect(classify(0.5, 0.9)).toBe(Tile.Forest);
+    expect(classify(0.62, 0.6)).toBe(Tile.Taiga);
+    expect(classify(0.62, 0.2)).toBe(Tile.Grass);
   });
 });
 
@@ -57,7 +59,7 @@ describe('biomes', () => {
     for (let ty = -400; ty < 400; ty += 3) {
       for (let tx = -400; tx < 400; tx += 3) seen.add(w.getTile(tx, ty));
     }
-    for (const t of [Tile.DeepWater, Tile.Water, Tile.Sand, Tile.Grass, Tile.Forest, Tile.Rock, Tile.Snow]) {
+    for (const t of [Tile.DeepWater, Tile.Water, Tile.Sand, Tile.Grass, Tile.Forest, Tile.Rock, Tile.Snow, Tile.Taiga]) {
       expect(seen.has(t)).toBe(true);
     }
   });

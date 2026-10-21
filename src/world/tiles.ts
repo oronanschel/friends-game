@@ -6,6 +6,8 @@ export enum Tile {
   Forest = 4,
   Rock = 5,
   Snow = 6,
+  /** Pine forest on high ground. */
+  Taiga = 7,
 }
 
 export interface TileInfo {
@@ -23,6 +25,7 @@ export const TILE_INFO: Record<Tile, TileInfo> = {
   [Tile.Forest]: { name: 'Forest', color: '#2f6e34', solid: false },
   [Tile.Rock]: { name: 'Rock', color: '#7d7a73', solid: true },
   [Tile.Snow]: { name: 'Snow', color: '#eef2f5', solid: false },
+  [Tile.Taiga]: { name: 'Pine forest', color: '#3d6b4f', solid: false },
 };
 
 export function isSolid(tile: Tile): boolean {
