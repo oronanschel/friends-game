@@ -5,6 +5,7 @@ import { Input } from './engine/input';
 import { startLoop } from './engine/loop';
 import { type Game, updateEntities } from './game';
 import { Inventory } from './items/items';
+import { KnightSpawner } from './knights/spawner';
 import { ItemSpawner } from './items/pickup';
 import { Player } from './player/player';
 import { render } from './render';
@@ -53,6 +54,7 @@ saves.register('inventory', inventory, resume);
 const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume, sound };
 game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
 game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
+game.entities.push(new KnightSpawner()); // chess knights guard the castles
 (window as unknown as { game: Game }).game = game; // handy in the browser console
 
 // Auto-save every few seconds and when the tab is hidden or closed.
