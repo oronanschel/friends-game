@@ -1,8 +1,26 @@
 import { Camera } from './engine/camera';
 import type { Entity } from './game';
 import type { Player } from './player/player';
-import { TILE_INFO } from './world/tiles';
+import { Decor, drawDecor, isTallDecor } from './world/decor';
+import { hash2 } from './world/noise';
+import { TILE_INFO, Tile } from './world/tiles';
 import { TILE_SIZE, World } from './world/world';
+
+/** Scale a #rrggbb colour's brightness by `f` (1 = unchanged). */
+export function shade(hex: string, f: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const c = (v: number) => Math.max(0, Math.min(255, Math.round(v * f)));
+  const r = c((n >> 16) & 255);
+  const g = c((n >> 8) & 255);
+  const b = c(n & 255);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
+/** A few brightness variants per tile type so the ground doesn't look flat. */
+const SHADES: Record<number, string[]> = {};
+for (const [tile, info] of Object.entries(TILE_INFO)) {
+  SHADES[Number(tile)] = [0.96, 0.99, 1.01, 1.04].map((f) => shade(info.color, f));
+}
 
 /** Draw the visible part of the world and the player. */
 export function render(
@@ -23,15 +41,29 @@ export function render(
   const ox = Math.round(-camera.left);
   const oy = Math.round(-camera.top);
 
-  for (let ty = ty0; ty <= ty1; ty++) {
+  // Ground tiles and flat decor (flowers, bushes, ...).
+  const drawables: Pick<Entity, 'y' | 'draw'>[] = [...entities, player];
+  for (let ty = ty0; ty <= ty1 + 1; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
-      ctx.fillStyle = TILE_INFO[world.getTile(tx, ty)].color;
-      ctx.fillRect(tx * TILE_SIZE + ox, ty * TILE_SIZE + oy, TILE_SIZE, TILE_SIZE);
+      const sx = tx * TILE_SIZE + ox;
+      const sy = ty * TILE_SIZE + oy;
+      const tile: Tile = world.getTile(tx, ty);
+      const variant = hash2(tx, ty, world.seed);
+      ctx.fillStyle = SHADES[tile][Math.floor(variant * 4)];
+      ctx.fillRect(sx, sy, TILE_SIZE, TILE_SIZE);
+      const decor = world.getDecor(tx, ty);
+      if (decor === Decor.None) continue;
+      if (isTallDecor(decor)) {
+        // Tall decor is depth-sorted with the player so you can walk behind trees.
+        const baseY = (ty + 1) * TILE_SIZE - 4;
+        drawables.push({ y: baseY, draw: (c) => drawDecor(c, decor, sx, sy, TILE_SIZE, variant) });
+      } else {
+        drawDecor(ctx, decor, sx, sy, TILE_SIZE, variant);
+      }
     }
   }
 
-  // Entities and the player, sorted by y for simple depth.
-  const drawables: Pick<Entity, 'y' | 'draw'>[] = [...entities, player];
+  // Entities, tall decor and the player, sorted by y for simple depth.
   drawables.sort((a, b) => a.y - b.y);
   for (const d of drawables) d.draw?.(ctx, camera);
 }
