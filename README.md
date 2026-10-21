@@ -6,7 +6,7 @@ Build a 2D top-down open-world browser game together.
 
 ```sh
 npm install
-npm run dev      # open the printed URL; WASD / arrow keys to move
+npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run
 npm test         # unit tests (Vitest)
 npm run build    # type-check + production build into dist/
 ```
@@ -20,6 +20,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | Path | What it does |
 | --- | --- |
 | `src/main.ts` | Wires everything together and runs the game loop |
+| `src/game.ts` | Shared `Game` state and the `Entity` interface for NPCs, items, ... |
 | `src/engine/` | Reusable pieces: `loop.ts` (fixed-timestep loop), `input.ts` (keyboard), `camera.ts` |
 | `src/world/` | Endless procedural world: `noise.ts`, `tiles.ts` (tile types, colours, solidity), `world.ts` (chunked generation, `getTile`, `isSolidAt`) |
 | `src/player/` | Player movement and tile collision |
@@ -28,6 +29,12 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 
 World coordinates are in pixels; one tile is `TILE_SIZE` (32) pixels. The world is generated
 lazily in 32×32-tile chunks and is fully determined by its seed.
+
+## Adding things to the world
+
+Implement `Entity` from `src/game.ts` (`x`, `y`, optional `update(dt, game)` and
+`draw(ctx, camera)`, set `dead = true` to remove) and push it onto `game.entities`.
+Entities are drawn in y order with the player. `window.game` is available in the browser console.
 
 ## Contributing
 

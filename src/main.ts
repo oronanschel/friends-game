@@ -1,6 +1,7 @@
 import { Camera } from './engine/camera';
 import { Input } from './engine/input';
 import { startLoop } from './engine/loop';
+import { type Game, updateEntities } from './game';
 import { Player } from './player/player';
 import { render } from './render';
 import { TILE_SIZE, World } from './world/world';
@@ -20,6 +21,10 @@ const camera = new Camera(window.innerWidth, window.innerHeight);
 camera.follow(player.x, player.y);
 const input = new Input();
 
+// Shared state: features add NPCs, items, etc. to `game.entities`.
+const game: Game = { world, player, camera, input, entities: [] };
+(window as unknown as { game: Game }).game = game; // handy in the browser console
+
 function resize(): void {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -32,13 +37,14 @@ resize();
 
 startLoop(
   (dt) => {
-    player.update(dt, input.axis(), world);
+    player.update(dt, input.axis(), world, input.running());
+    updateEntities(game, dt);
     camera.follow(player.x, player.y, 0.15);
   },
   () => {
-    render(ctx, world, camera, player);
+    render(ctx, world, camera, player, game.entities);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move`;
+    hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run`;
   },
 );

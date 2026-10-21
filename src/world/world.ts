@@ -74,7 +74,9 @@ export class World {
       for (let lx = 0; lx < CHUNK_SIZE; lx++) {
         const tx = cx * CHUNK_SIZE + lx;
         const ty = cy * CHUNK_SIZE + ly;
-        const elevation = fractalNoise(tx / 64, ty / 64, this.seed, 5);
+        // Raise land around the origin so the spawn is never a tiny island.
+        const spawnBoost = 0.3 * Math.max(0, 1 - Math.hypot(tx, ty) / 24);
+        const elevation = Math.min(0.66, fractalNoise(tx / 64, ty / 64, this.seed, 5) + spawnBoost);
         const moisture = fractalNoise(tx / 48, ty / 48, this.seed + 7777, 3);
         data[ly * CHUNK_SIZE + lx] = classify(elevation, moisture);
       }

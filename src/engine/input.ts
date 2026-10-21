@@ -12,6 +12,11 @@ export class Input {
     return this.down.has(code);
   }
 
+  /** Whether a run key (Shift) is held. */
+  running(): boolean {
+    return this.isDown('ShiftLeft') || this.isDown('ShiftRight');
+  }
+
   /** Movement direction from WASD / arrow keys, each axis in {-1, 0, 1}. */
   axis(): { x: number; y: number } {
     const x =

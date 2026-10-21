@@ -1,4 +1,9 @@
+import type { Camera } from '../engine/camera';
+import { drawPlayer } from '../render';
 import { TILE_SIZE, World } from '../world/world';
+
+/** Speed multiplier while running (Shift). */
+export const RUN_MULTIPLIER = 1.75;
 
 /** The player: an axis-aligned box that moves and collides with solid tiles. */
 export class Player {
@@ -11,7 +16,7 @@ export class Player {
   constructor(public x: number, public y: number) {}
 
   /** Move by input direction for `dt` seconds, resolving collisions per axis. */
-  update(dt: number, dir: { x: number; y: number }, world: World): void {
+  update(dt: number, dir: { x: number; y: number }, world: World, running = false): void {
     let { x: dx, y: dy } = dir;
     if (dx !== 0 && dy !== 0) {
       dx *= Math.SQRT1_2;
@@ -23,8 +28,9 @@ export class Player {
     else if (dy < 0) this.facing = 'up';
 
     // Move in small sub-steps so large moves can't tunnel through walls.
-    const mx = dx * this.speed * dt;
-    const my = dy * this.speed * dt;
+    const speed = this.speed * (running ? RUN_MULTIPLIER : 1);
+    const mx = dx * speed * dt;
+    const my = dy * speed * dt;
     const steps = Math.max(1, Math.ceil(Math.max(Math.abs(mx), Math.abs(my)) / 4));
     for (let i = 0; i < steps; i++) {
       const nx = this.x + mx / steps;
@@ -32,6 +38,10 @@ export class Player {
       const ny = this.y + my / steps;
       if (!this.collides(this.x, ny, world)) this.y = ny;
     }
+  }
+
+  draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
+    drawPlayer(ctx, camera, this);
   }
 
   /** Whether the box centred at (cx, cy) overlaps any solid tile. */

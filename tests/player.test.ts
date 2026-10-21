@@ -31,3 +31,15 @@ describe('Player', () => {
     expect(Math.hypot(p.x, p.y)).toBeCloseTo(p.speed);
   });
 });
+
+describe('Player running', () => {
+  it('moves faster while running', () => {
+    const world = new World(1337);
+    world.isSolidAt = () => false;
+    const walk = new Player(0, 0);
+    const run = new Player(0, 0);
+    walk.update(1, { x: 1, y: 0 }, world);
+    run.update(1, { x: 1, y: 0 }, world, true);
+    expect(run.x).toBeGreaterThan(walk.x);
+  });
+});

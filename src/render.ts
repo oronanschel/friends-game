@@ -1,10 +1,17 @@
 import { Camera } from './engine/camera';
-import { Player } from './player/player';
+import type { Entity } from './game';
+import type { Player } from './player/player';
 import { TILE_INFO } from './world/tiles';
 import { TILE_SIZE, World } from './world/world';
 
 /** Draw the visible part of the world and the player. */
-export function render(ctx: CanvasRenderingContext2D, world: World, camera: Camera, player: Player): void {
+export function render(
+  ctx: CanvasRenderingContext2D,
+  world: World,
+  camera: Camera,
+  player: Player,
+  entities: Entity[] = [],
+): void {
   const { width, height } = camera;
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, width, height);
@@ -23,7 +30,14 @@ export function render(ctx: CanvasRenderingContext2D, world: World, camera: Came
     }
   }
 
-  // Player: simple body with a facing indicator.
+  // Entities and the player, sorted by y for simple depth.
+  const drawables: Pick<Entity, 'y' | 'draw'>[] = [...entities, player];
+  drawables.sort((a, b) => a.y - b.y);
+  for (const d of drawables) d.draw?.(ctx, camera);
+}
+
+/** Draw the player: a simple body with a facing indicator. */
+export function drawPlayer(ctx: CanvasRenderingContext2D, camera: Camera, player: Player): void {
   const p = camera.toScreen(player.x, player.y);
   const half = player.size / 2;
   ctx.fillStyle = 'rgba(0,0,0,0.25)';

@@ -41,3 +41,11 @@ describe('World', () => {
     expect(classify(0.5, 0.9)).toBe(Tile.Forest);
   });
 });
+
+describe('spawn area', () => {
+  it('has walkable land at the origin for many seeds', () => {
+    for (let seed = 0; seed < 50; seed++) {
+      expect(new World(seed).isSolidAt(0, 0)).toBe(false);
+    }
+  });
+});
