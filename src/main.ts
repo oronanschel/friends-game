@@ -1,3 +1,4 @@
+import { LionSpawner } from './animals/spawner';
 import { Camera } from './engine/camera';
 import { Input } from './engine/input';
 import { startLoop } from './engine/loop';
@@ -37,6 +38,7 @@ const minimap = new Minimap();
 
 // Shared state: features add NPCs, items, etc. to `game.entities`.
 const game: Game = { world, player, camera, input, entities: [], saves, resume };
+game.entities.push(new LionSpawner()); // prides of lions roam the grasslands
 (window as unknown as { game: Game }).game = game; // handy in the browser console
 
 // Auto-save every few seconds and when the tab is hidden or closed.
