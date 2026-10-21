@@ -13,6 +13,10 @@ npm run build    # type-check + production build into dist/
 
 Add `?seed=123` to the URL to explore a different world.
 
+## Plain-JS prototype
+
+`prototypes/plain-js/` holds the earlier no-build scaffold from PR #1, kept for reference and ideas. With `npm run dev` running, open `/prototypes/plain-js/` to try it.
+
 ## How the code is organised
 
 Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can read it.
