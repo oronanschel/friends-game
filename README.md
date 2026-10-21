@@ -29,7 +29,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/game.ts` | Shared `Game` state and the `Entity` interface for NPCs, items, ... |
 | `src/engine/` | Reusable pieces: `loop.ts` (fixed-timestep loop), `input.ts` (keyboard), `camera.ts` |
 | `src/world/` | Endless procedural world: `noise.ts`, `tiles.ts` (tile types, colours, solidity), `decor.ts` (trees, pines, bushes, flowers), `world.ts` (chunked generation, `getTile`, `getDecor`, `isSolidAt`) |
-| `src/player/` | Player movement and tile collision |
+| `src/player/` | Player movement and tile collision; `health.ts` (5 hearts, lions hurt, E eats a berry to heal, faint → wake at spawn) |
 | `src/save/` | Auto-save to localStorage; features persist state with `game.saves.register(key, { save, load }, game.resume)` |
 | `src/audio/` | Procedural WebAudio: footsteps, ambient tune, effects via `game.sound?.play('roar')` |
 | `src/ui/` | Overlays such as the minimap |

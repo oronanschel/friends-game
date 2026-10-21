@@ -35,7 +35,7 @@ export class TouchControls {
   constructor(
     private canvas: HTMLCanvasElement,
     private input: Input,
-    actions: { toggleMap: () => void },
+    actions: { toggleMap: () => void; eat?: () => void },
   ) {
     this.buttons = [
       {
@@ -49,6 +49,7 @@ export class TouchControls {
       },
       { label: 'MAP', dx: 150, dy: 60, r: 28, pressed: false, onDown: actions.toggleMap },
     ];
+    if (actions.eat) this.buttons.push({ label: 'EAT', dx: 140, dy: 135, r: 28, pressed: false, onDown: actions.eat });
     canvas.addEventListener('pointerdown', (e) => this.down(e));
     canvas.addEventListener('pointermove', (e) => this.move(e));
     canvas.addEventListener('pointerup', (e) => this.up(e));
