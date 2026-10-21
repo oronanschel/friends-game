@@ -6,7 +6,7 @@ export const INVULNERABLE_TIME = 1.5;
 /** Seconds the "You fainted" screen shows before waking up at spawn. */
 export const FAINT_TIME = 2.5;
 
-/** Player hearts: lions hurt, berries heal, at zero you faint and wake up at spawn. */
+/** Player hearts: berries and fairies heal, at zero you faint and wake up at spawn. */
 export class Health {
   hearts = MAX_HEARTS;
   /** Seconds of invulnerability left after a hit. */

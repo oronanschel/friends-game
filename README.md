@@ -20,6 +20,7 @@ npm run build    # type-check + production build into dist/
 | WASD / arrows | Move (Shift to run) |
 | E | Talk / trade with a nearby villager |
 | Q | Eat a berry to restore a heart |
+| F | Cast a magic bolt (you're a wizard!) |
 | 1 / 2 / 3 | Use a power stone |
 | M | Toggle the minimap |
 | V | Mute / unmute sound |
@@ -42,13 +43,13 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/game.ts` | Shared `Game` state and the `Entity` interface for NPCs, items, ... |
 | `src/engine/` | Reusable pieces: `loop.ts` (fixed-timestep loop), `input.ts` (keyboard), `camera.ts` |
 | `src/world/` | Endless procedural world: `noise.ts`, `tiles.ts` (tile types, colours, solidity), `decor.ts` (trees, pines, bushes, flowers), `castles.ts`, `world.ts` (chunked generation, `getTile`, `getDecor`, `isSolidAt`) |
-| `src/player/` | Player movement and tile collision; `sprite.ts` (animated pixel hero); `health.ts` (5 hearts, lions hurt, Q eats a berry to heal, faint → wake at spawn) |
+| `src/player/` | The player is a powerful wizard drawn on the animated pixel hero (`sprite.ts`); `spell.ts` (F casts a magic bolt; entities can react via `onSpellHit`); `health.ts` (5 hearts, Q eats a berry to heal, faint → wake at spawn) |
 | `src/save/` | Auto-save to localStorage; features persist state with `game.saves.register(key, { save, load }, game.resume)` |
 | `src/audio/` | Procedural WebAudio: footsteps, ambient tune, effects via `game.sound?.play('roar')` |
 | `src/ui/` | Overlays: minimap, day/night tint and clock, hearts, inventory and power-stone HUDs, touch controls |
 | `src/items/` | Collectible coins, berries, mushrooms and gems, placed per chunk from the seed; `game.inventory` holds counts and is saved |
 | `src/npc/` | Villagers near the start: `villagers.ts` (names, lines, trades), `npc.ts` (strolling entity), `dialogue.ts` (conversation, trade and quest logic), `quests.ts` (one-time "bring me" quests, saved), `talk.ts` (E to talk, dialogue box, quest tracker) |
-| `src/animals/` | Wildlife: lions that roam grassland, chase you when close and rest after a pounce (outrun them with Shift) |
+| `src/animals/` | Cute fairies that flutter over meadows, fly over to visit you and sprinkle fairy dust that restores a heart |
 | `src/knights/` | Chess-knight guards around castles |
 | `src/power/` | Rare power stones you collect and use with 1/2/3 |
 | `src/wizard/` | A wizard who follows you and casts bolts (hide behind trees) |
