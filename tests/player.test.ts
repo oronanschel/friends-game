@@ -43,3 +43,14 @@ describe('Player running', () => {
     expect(run.x).toBeGreaterThan(walk.x);
   });
 });
+
+describe('Player analog input', () => {
+  it('moves slower with a half-tilted joystick and faces the dominant direction', () => {
+    const world = new World(1337);
+    world.isSolidAt = () => false;
+    const p = new Player(0, 0);
+    p.update(1, { x: 0.2, y: -0.5 }, world);
+    expect(Math.hypot(p.x, p.y)).toBeCloseTo(p.speed * Math.hypot(0.2, 0.5));
+    expect(p.facing).toBe('up');
+  });
+});

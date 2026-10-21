@@ -18,14 +18,16 @@ export class Player {
   /** Move by input direction for `dt` seconds, resolving collisions per axis. */
   update(dt: number, dir: { x: number; y: number }, world: World, running = false): void {
     let { x: dx, y: dy } = dir;
-    if (dx !== 0 && dy !== 0) {
-      dx *= Math.SQRT1_2;
-      dy *= Math.SQRT1_2;
+    // Never faster than full speed, including diagonals; analog input below 1 moves slower.
+    const len = Math.hypot(dx, dy);
+    if (len > 1) {
+      dx /= len;
+      dy /= len;
     }
-    if (dx > 0) this.facing = 'right';
-    else if (dx < 0) this.facing = 'left';
-    else if (dy > 0) this.facing = 'down';
-    else if (dy < 0) this.facing = 'up';
+    if (dx !== 0 || dy !== 0) {
+      if (Math.abs(dx) >= Math.abs(dy)) this.facing = dx > 0 ? 'right' : 'left';
+      else this.facing = dy > 0 ? 'down' : 'up';
+    }
 
     // Move in small sub-steps so large moves can't tunnel through walls.
     const speed = this.speed * (running ? RUN_MULTIPLIER : 1);

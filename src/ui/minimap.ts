@@ -40,8 +40,8 @@ export class Minimap {
   visible = true;
   /** Tiles shown along each side. */
   readonly tiles = 128;
-  /** Screen pixels per tile. */
-  readonly scale = 1.25;
+  /** Screen pixels per tile (shrinks on narrow screens, see draw). */
+  scale = 1.25;
   private image: HTMLCanvasElement;
   private centre: { tx: number; ty: number } | null = null;
   private static readonly REBUILD_DISTANCE = 6;
@@ -67,6 +67,8 @@ export class Minimap {
       this.rebuild(world, Math.floor(ptx), Math.floor(pty));
     }
     const c = this.centre!;
+    // At most ~28% of the screen width so it doesn't cover phones.
+    this.scale = Math.min(1.25, (ctx.canvas.width * 0.28) / this.tiles);
     const side = this.tiles * this.scale;
     const margin = 12;
     const sx = ctx.canvas.width - side - margin;

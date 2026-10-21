@@ -7,6 +7,7 @@ import { Player } from './player/player';
 import { render } from './render';
 import { SaveManager, chooseStart } from './save/save';
 import { Minimap } from './ui/minimap';
+import { TouchControls } from './ui/touch';
 import { TILE_SIZE, World } from './world/world';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
@@ -35,6 +36,7 @@ const camera = new Camera(window.innerWidth, window.innerHeight);
 camera.follow(player.x, player.y);
 const input = new Input();
 const minimap = new Minimap();
+const touch = new TouchControls(canvas, input, { toggleMap: () => (minimap.visible = !minimap.visible) });
 
 // Shared state: features add NPCs, items, etc. to `game.entities`.
 const game: Game = { world, player, camera, input, entities: [], saves, resume };
@@ -69,6 +71,7 @@ startLoop(
   () => {
     render(ctx, world, camera, player, game.entities);
     minimap.draw(ctx, world, player.x, player.y);
+    touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
     hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map`;
