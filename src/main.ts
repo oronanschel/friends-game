@@ -10,6 +10,7 @@ import { Player } from './player/player';
 import { render } from './render';
 import { SaveManager, chooseStart } from './save/save';
 import { drawInventoryHud } from './ui/inventoryHud';
+import { DayNight } from './ui/daynight';
 import { Minimap } from './ui/minimap';
 import { TouchControls } from './ui/touch';
 import { TILE_SIZE, World } from './world/world';
@@ -28,6 +29,8 @@ if (params.has('new')) {
   params.set('seed', String(seed));
   history.replaceState(null, '', `?${params}`);
 }
+// `?time=0.8` starts at another time of day (0 = midnight, 0.5 = noon).
+const timeParam = Number(params.get('time'));
 
 const world = new World(seed);
 const spawn = world.findWalkableNear(0, 0);
@@ -41,6 +44,7 @@ camera.follow(player.x, player.y);
 const input = new Input();
 const minimap = new Minimap();
 const touch = new TouchControls(canvas, input, { toggleMap: () => (minimap.visible = !minimap.visible) });
+const dayNight = new DayNight(params.has('time') && Number.isFinite(timeParam) ? timeParam : undefined);
 
 // Shared state: features add NPCs, items, etc. to `game.entities`.
 const sound = new Sound();
@@ -78,15 +82,17 @@ startLoop(
     const tile = world.getTile(Math.floor(player.x / TILE_SIZE), Math.floor(player.y / TILE_SIZE));
     sound.update(Math.hypot(player.x - px, player.y - py), tile, input.running());
     updateEntities(game, dt);
+    dayNight.update(dt);
     camera.follow(player.x, player.y, 0.15);
   },
   () => {
     render(ctx, world, camera, player, game.entities);
+    dayNight.draw(ctx, camera, player.x, player.y);
     minimap.draw(ctx, world, player.x, player.y);
     drawInventoryHud(ctx, inventory, canvas.height);
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map, V for sound${sound.muted ? ' (muted)' : ''}`;
+    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, M for map, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );
