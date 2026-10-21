@@ -1,6 +1,7 @@
 import type { Camera } from './engine/camera';
 import type { Input } from './engine/input';
 import type { Player } from './player/player';
+import type { SaveData, SaveManager } from './save/save';
 import type { World } from './world/world';
 
 /**
@@ -24,6 +25,10 @@ export interface Game {
   camera: Camera;
   input: Input;
   entities: Entity[];
+  /** Register feature state to persist: `game.saves.register('inventory', { save, load }, game.resume)`. */
+  saves: SaveManager;
+  /** The save this session continued from, if any. */
+  resume: SaveData | null;
 }
 
 /** Advance every entity and drop the ones marked dead. */

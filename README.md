@@ -6,12 +6,13 @@ Build a 2D top-down open-world browser game together.
 
 ```sh
 npm install
-npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run
+npm run dev      # open the printed URL; WASD / arrow keys to move, Shift to run, M toggles the minimap
 npm test         # unit tests (Vitest)
 npm run build    # type-check + production build into dist/
 ```
 
-Add `?seed=123` to the URL to explore a different world.
+The game auto-saves (world, position and any registered feature state) to your browser and
+continues where you left off. Add `?seed=123` to the URL to open a specific world, or `?new` for a fresh random one.
 
 ## Plain-JS prototype
 
@@ -26,8 +27,10 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/main.ts` | Wires everything together and runs the game loop |
 | `src/game.ts` | Shared `Game` state and the `Entity` interface for NPCs, items, ... |
 | `src/engine/` | Reusable pieces: `loop.ts` (fixed-timestep loop), `input.ts` (keyboard), `camera.ts` |
-| `src/world/` | Endless procedural world: `noise.ts`, `tiles.ts` (tile types, colours, solidity), `world.ts` (chunked generation, `getTile`, `isSolidAt`) |
+| `src/world/` | Endless procedural world: `noise.ts`, `tiles.ts` (tile types, colours, solidity), `decor.ts` (trees, pines, bushes, flowers), `world.ts` (chunked generation, `getTile`, `getDecor`, `isSolidAt`) |
 | `src/player/` | Player movement and tile collision |
+| `src/save/` | Auto-save to localStorage; features persist state with `game.saves.register(key, { save, load }, game.resume)` |
+| `src/ui/` | Overlays such as the minimap |
 | `src/render.ts` | Draws visible tiles and the player |
 | `tests/` | Vitest unit tests |
 
