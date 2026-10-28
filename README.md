@@ -43,7 +43,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/game.ts` | Shared `Game` state and the `Entity` interface for NPCs, items, ... |
 | `src/engine/` | Reusable pieces: `loop.ts` (fixed-timestep loop), `input.ts` (keyboard), `camera.ts` |
 | `src/world/` | Endless procedural world: `noise.ts`, `tiles.ts` (tile types, colours, solidity), `decor.ts` (trees, pines, bushes, flowers), `castles.ts`, `world.ts` (chunked generation, `getTile`, `getDecor`, `isSolidAt`) |
-| `src/player/` | The player is a powerful wizard drawn on the animated pixel hero (`sprite.ts`); `spell.ts` (F casts a magic bolt; entities can react via `onSpellHit`); `health.ts` (5 hearts, Q eats a berry to heal, faint → wake at spawn) |
+| `src/player/` | The player is a powerful wizard drawn on the animated pixel hero (`sprite.ts`); `spell.ts` (F casts a magic bolt; entities can react via `onSpellHit`); `health.ts` (5 hearts, Q eats a berry to heal, faint → wake at the last campfire or spawn) |
 | `src/save/` | Auto-save to localStorage; features persist state with `game.saves.register(key, { save, load }, game.resume)` |
 | `src/audio/` | Procedural WebAudio: footsteps, ambient tune, effects via `game.sound?.play('roar')` |
 | `src/ui/` | Overlays: minimap, day/night tint and clock, hearts, inventory and power-stone HUDs, touch controls |
@@ -53,6 +53,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/knights/` | Chess-knight guards around castles |
 | `src/power/` | Rare power stones you collect and use with 1/2/3 |
 | `src/wizard/` | A wizard who follows you and casts bolts (hide behind trees) |
+| `src/campfire/` | Campfires placed per chunk from the seed: walk up to one to light it, and after fainting you wake up at the last one you lit. Lit fires glow through the night; saved |
 | `src/render.ts` | Draws visible tiles and the player |
 | `tests/` | Vitest unit tests |
 
