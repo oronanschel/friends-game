@@ -28,6 +28,7 @@ npm run build    # type-check + production build into dist/
 
 The game auto-saves (world, position and any registered feature state) to your browser and
 continues where you left off. Add `?seed=123` to the URL to open a specific world, or `?new` for a fresh random one.
+`?weather=rain`, `?weather=snow` or `?weather=clear` overrides the weather.
 
 ## Plain-JS prototype
 
@@ -54,6 +55,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/power/` | Rare power stones you collect and use with 1/2/3 |
 | `src/wizard/` | A wizard who follows you and casts bolts (hide behind trees) |
 | `src/campfire/` | Campfires placed per chunk from the seed: walk up to one to light it, and after fainting you wake up at the last one you lit. Lit fires glow through the night; saved |
+| `src/weather/` | Rain (snow over snowy and pine ground) that comes and goes every few minutes, rolled from the seed and faded in and out |
 | `src/render.ts` | Draws visible tiles and the player |
 | `tests/` | Vitest unit tests |
 

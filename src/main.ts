@@ -22,6 +22,7 @@ import { DayNight } from './ui/daynight';
 import { Minimap } from './ui/minimap';
 import { drawStoneHud, stoneSlotAt } from './ui/stoneHud';
 import { TouchControls } from './ui/touch';
+import { Weather, parseWeather } from './weather/weather';
 import { Wizard } from './wizard/wizard';
 import { TILE_SIZE, World } from './world/world';
 
@@ -71,6 +72,8 @@ const touch = new TouchControls(canvas, input, {
   cast: () => cast(),
 });
 const dayNight = new DayNight(params.has('time') && Number.isFinite(timeParam) ? timeParam : undefined);
+// Rain and snow come and go on their own; `?weather=rain|snow|clear` forces one.
+const weather = new Weather(seed, parseWeather(params.get('weather')));
 
 // Shared state: features add NPCs, items, etc. to `game.entities`.
 const sound = new Sound();
@@ -143,6 +146,7 @@ startLoop(
     if (health.awake) player.update(dt, talk.busy ? { x: 0, y: 0 } : input.axis(), world, input.running());
     const tile = world.getTile(Math.floor(player.x / TILE_SIZE), Math.floor(player.y / TILE_SIZE));
     sound.update(Math.hypot(player.x - px, player.y - py), tile, input.running());
+    weather.update(dt, tile, camera);
     updateEntities(game, dt);
     talk.update(game);
     dayNight.update(dt);
@@ -150,6 +154,7 @@ startLoop(
   },
   () => {
     render(ctx, world, camera, player, game.entities);
+    weather.draw(ctx);
     dayNight.draw(ctx, camera, player.x, player.y, campfireLights(game.entities));
     drawPowerAura(ctx, camera, powerStones, player.x, player.y);
     talk.draw(ctx, camera);
@@ -161,6 +166,6 @@ startLoop(
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, F to cast a spell, E to talk, M for map, Q to eat a berry, 1/2/3 power stones, V for sound${sound.muted ? ' (muted)' : ''}`;
+    hud.textContent = `${dayNight.clock} ${dayNight.phase}${weather.label && ` · ${weather.label}`} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, F to cast a spell, E to talk, M for map, Q to eat a berry, 1/2/3 power stones, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );
