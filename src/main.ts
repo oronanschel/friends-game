@@ -2,6 +2,7 @@ import { FairySpawner } from './animals/fairies';
 import { Sound } from './audio/sound';
 import { CampfireSpawner, Campfires, campfireLights } from './campfire/campfires';
 import { Camera } from './engine/camera';
+import { Fishing } from './fishing/fishing';
 import { Input } from './engine/input';
 import { startLoop } from './engine/loop';
 import { type Game, updateEntities } from './game';
@@ -91,6 +92,8 @@ game.entities.push(new CampfireSpawner(campfires)); // light a campfire to wake 
 spawnVillagers(game, spawn.tx, spawn.ty); // friendly villagers near the start; press E to talk
 const talk = new TalkController(window, canvas);
 saves.register('quests', talk.quests, resume);
+const fishing = new Fishing(); // face the water and press R to fish
+game.entities.push(fishing);
 
 // F casts a magic bolt: the player is a powerful wizard.
 const spells = new Spellbook();
@@ -105,6 +108,7 @@ function eat(): void {
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyQ' && !e.repeat) eat();
   if (e.code === 'KeyF') cast();
+  if (e.code === 'KeyR' && !e.repeat && !talk.busy) fishing.press(game);
 });
 (window as unknown as { game: Game }).game = game; // handy in the browser console
 
@@ -161,6 +165,6 @@ startLoop(
     touch.draw(ctx);
     const tx = Math.floor(player.x / TILE_SIZE);
     const ty = Math.floor(player.y / TILE_SIZE);
-    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, F to cast a spell, E to talk, M for map, Q to eat a berry, 1/2/3 power stones, V for sound${sound.muted ? ' (muted)' : ''}`;
+    hud.textContent = `${dayNight.clock} ${dayNight.phase} · seed ${seed} · tile ${tx},${ty} · chunks ${world.loadedChunks} · WASD/arrows to move, Shift to run, F to cast a spell, E to talk, R to fish, M for map, Q to eat a berry, 1/2/3 power stones, V for sound${sound.muted ? ' (muted)' : ''}`;
   },
 );

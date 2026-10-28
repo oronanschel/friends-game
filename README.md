@@ -21,6 +21,7 @@ npm run build    # type-check + production build into dist/
 | E | Talk / trade with a nearby villager |
 | Q | Eat a berry to restore a heart |
 | F | Cast a magic bolt (you're a wizard!) |
+| R | Fish: face the water to cast, press again when the bobber dips |
 | 1 / 2 / 3 | Use a power stone |
 | M | Toggle the minimap |
 | V | Mute / unmute sound |
@@ -54,6 +55,7 @@ Plain TypeScript + HTML Canvas, bundled with Vite. No game engine, so anyone can
 | `src/power/` | Rare power stones you collect and use with 1/2/3 |
 | `src/wizard/` | A wizard who follows you and casts bolts (hide behind trees) |
 | `src/campfire/` | Campfires placed per chunk from the seed: walk up to one to light it, and after fainting you wake up at the last one you lit. Lit fires glow through the night; saved |
+| `src/fishing/` | R to fish: cast into the water you're facing, wait for the bobber to dip, press R again in time to catch a fish (Marlin the Fisher buys them) |
 | `src/render.ts` | Draws visible tiles and the player |
 | `tests/` | Vitest unit tests |
 
