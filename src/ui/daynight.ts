@@ -13,6 +13,13 @@ export interface Tint {
   a: number;
 }
 
+/** A light in the world (e.g. a campfire) that cuts through the night tint. */
+export interface Light {
+  x: number;
+  y: number;
+  radius: number;
+}
+
 /** Tint keyframes by hour; the colour between two keyframes is blended. */
 const KEYS: [hour: number, tint: Tint][] = [
   [0, { r: 8, g: 14, b: 50, a: 0.7 }],
@@ -86,8 +93,8 @@ export class DayNight {
     return clockLabel(this.t);
   }
 
-  /** Tint the whole screen, leaving a soft pool of light around the player at night. */
-  draw(ctx: CanvasRenderingContext2D, camera: Camera, playerX: number, playerY: number): void {
+  /** Tint the whole screen, leaving soft pools of light around the player and any `lights` at night. */
+  draw(ctx: CanvasRenderingContext2D, camera: Camera, playerX: number, playerY: number, lights: Light[] = []): void {
     const tint = tintAt(this.t);
     const { width, height } = ctx.canvas;
     if (tint.a <= 0.005 || width === 0 || height === 0) return;
@@ -105,15 +112,16 @@ export class DayNight {
 
     const light = lightStrength(tint);
     if (light > 0) {
-      const p = camera.toScreen(playerX, playerY);
-      const radius = 150;
-      const glow = octx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius);
-      glow.addColorStop(0, `rgba(0,0,0,${0.85 * light})`);
-      glow.addColorStop(0.6, `rgba(0,0,0,${0.5 * light})`);
-      glow.addColorStop(1, 'rgba(0,0,0,0)');
       octx.globalCompositeOperation = 'destination-out';
-      octx.fillStyle = glow;
-      octx.fillRect(p.x - radius, p.y - radius, radius * 2, radius * 2);
+      for (const l of [{ x: playerX, y: playerY, radius: 150 }, ...lights]) {
+        const p = camera.toScreen(l.x, l.y);
+        const glow = octx.createRadialGradient(p.x, p.y, 0, p.x, p.y, l.radius);
+        glow.addColorStop(0, `rgba(0,0,0,${0.85 * light})`);
+        glow.addColorStop(0.6, `rgba(0,0,0,${0.5 * light})`);
+        glow.addColorStop(1, 'rgba(0,0,0,0)');
+        octx.fillStyle = glow;
+        octx.fillRect(p.x - l.radius, p.y - l.radius, l.radius * 2, l.radius * 2);
+      }
     }
     ctx.drawImage(o, 0, 0);
   }

@@ -1,5 +1,6 @@
 import { FairySpawner } from './animals/fairies';
 import { Sound } from './audio/sound';
+import { CampfireSpawner, Campfires, campfireLights } from './campfire/campfires';
 import { Camera } from './engine/camera';
 import { Input } from './engine/input';
 import { startLoop } from './engine/loop';
@@ -77,6 +78,8 @@ const inventory = new Inventory();
 saves.register('inventory', inventory, resume);
 const health = new Health();
 saves.register('health', health, resume);
+const campfires = new Campfires();
+saves.register('campfires', campfires, resume);
 const game: Game = { world, player, camera, input, entities: [], inventory, saves, resume, sound, health };
 
 game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
@@ -84,6 +87,7 @@ game.entities.push(new FairySpawner()); // cute fairies flutter over the meadows
 game.entities.push(new KnightSpawner()); // chess knights guard the castles
 game.entities.push(powerSystem); // rare power stones and their powers
 game.entities.push(new Wizard(player.x, player.y, seed)); // a wizard follows you and throws spells
+game.entities.push(new CampfireSpawner(campfires)); // light a campfire to wake up there after fainting
 spawnVillagers(game, spawn.tx, spawn.ty); // friendly villagers near the start; press E to talk
 const talk = new TalkController(window, canvas);
 saves.register('quests', talk.quests, resume);
@@ -129,9 +133,10 @@ startLoop(
     const py = player.y;
     spells.update(dt);
     if (health.update(dt)) {
-      // Woke up from fainting: back to the start with full hearts.
-      player.x = (spawn.tx + 0.5) * TILE_SIZE;
-      player.y = (spawn.ty + 0.5) * TILE_SIZE;
+      // Woke up from fainting: back at the last campfire (or the start) with full hearts.
+      const wake = campfires.wakeTile(world) ?? spawn;
+      player.x = (wake.tx + 0.5) * TILE_SIZE;
+      player.y = (wake.ty + 0.5) * TILE_SIZE;
       camera.follow(player.x, player.y);
     }
     // Stand still while fainted or chatting.
@@ -145,7 +150,7 @@ startLoop(
   },
   () => {
     render(ctx, world, camera, player, game.entities);
-    dayNight.draw(ctx, camera, player.x, player.y);
+    dayNight.draw(ctx, camera, player.x, player.y, campfireLights(game.entities));
     drawPowerAura(ctx, camera, powerStones, player.x, player.y);
     talk.draw(ctx, camera);
     drawQuestTracker(ctx, talk.quests, game, hud.offsetTop + hud.offsetHeight + 6); // below the text HUD
