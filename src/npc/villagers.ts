@@ -88,4 +88,27 @@ export const VILLAGERS: NpcDef[] = [
       thanks: 'Yay! Soup tonight! Here, take these coins.',
     },
   },
+  {
+    name: 'Marlin the Fisher',
+    color: '#3f7fa8',
+    hat: '#e8c85a',
+    home: { dx: 7, dy: 3 },
+    lines: [
+      'Stand at the water, face it and press R to cast your line.',
+      'When the bobber dips, press R again, quick! Too soon and the fish swims off.',
+    ],
+    quest: {
+      id: 'marlin-supper',
+      title: "Marlin's fish supper",
+      want: { kind: ItemKind.Fish, n: 3 },
+      reward: { kind: ItemKind.Coin, n: 6 },
+      ask: "My old arms are tired today. Could you catch me 3 fish for supper?",
+      thanks: 'Ha, fine catches! Here, you earned these coins.',
+    },
+    trade: {
+      give: { kind: ItemKind.Fish, n: 2 },
+      get: { kind: ItemKind.Coin, n: 3 },
+      thanks: "Lovely and fresh! I'll smoke these tonight.",
+    },
+  },
 ];

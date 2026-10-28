@@ -7,6 +7,8 @@ export enum ItemKind {
   Berry = 'berry',
   Mushroom = 'mushroom',
   Gem = 'gem',
+  /** Caught by fishing (see `src/fishing/`), never found lying around. */
+  Fish = 'fish',
 }
 
 export interface ItemInfo {
@@ -22,10 +24,11 @@ export const ITEM_INFO: Record<ItemKind, ItemInfo> = {
   [ItemKind.Berry]: { name: 'Berries', tiles: [Tile.Grass, Tile.Forest], chance: 0.006 },
   [ItemKind.Mushroom]: { name: 'Mushrooms', tiles: [Tile.Forest, Tile.Taiga], chance: 0.008 },
   [ItemKind.Gem]: { name: 'Gems', tiles: [Tile.Sand, Tile.Snow], chance: 0.004 },
+  [ItemKind.Fish]: { name: 'Fish', tiles: [], chance: 0 },
 };
 
 /** Order items are listed in the HUD. */
-export const ITEM_ORDER: ItemKind[] = [ItemKind.Coin, ItemKind.Berry, ItemKind.Mushroom, ItemKind.Gem];
+export const ITEM_ORDER: ItemKind[] = [ItemKind.Coin, ItemKind.Berry, ItemKind.Mushroom, ItemKind.Gem, ItemKind.Fish];
 
 export interface ItemSpot {
   /** Stable id (the tile it sits on), used to remember it was collected. */
@@ -64,7 +67,7 @@ export function itemsInChunk(world: World, cx: number, cy: number): ItemSpot[] {
 
 /** What the player has collected, plus which world items are already gone. */
 export class Inventory {
-  counts: Record<ItemKind, number> = { coin: 0, berry: 0, mushroom: 0, gem: 0 };
+  counts: Record<ItemKind, number> = { coin: 0, berry: 0, mushroom: 0, gem: 0, fish: 0 };
   /** Ids of collected item spots, so they don't respawn. */
   collected = new Set<string>();
   /** Last item picked up and when (for a HUD highlight). */

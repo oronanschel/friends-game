@@ -61,6 +61,25 @@ export function drawItemIcon(ctx: CanvasRenderingContext2D, kind: ItemKind, x: n
       ctx.fillStyle = '#e0f7fa';
       ctx.fillRect(-2, -4, 2, 3);
       break;
+    case ItemKind.Fish:
+      ctx.fillStyle = '#7fa7c9';
+      ctx.strokeStyle = '#3c5f80';
+      ctx.lineWidth = 1.5;
+      // Tail, then body.
+      ctx.beginPath();
+      ctx.moveTo(4, 0);
+      ctx.lineTo(8, -4);
+      ctx.lineTo(8, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(-1, 0, 6, 3.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#1b2a38';
+      ctx.fillRect(-5, -1.5, 1.5, 1.5);
+      break;
   }
   ctx.restore();
 }

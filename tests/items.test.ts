@@ -31,8 +31,8 @@ describe('itemsInChunk', () => {
         }
       }
     }
-    // A 7×7-chunk area is big enough to contain every kind of item.
-    expect([...kinds].sort()).toEqual([...ITEM_ORDER].sort());
+    // A 7×7-chunk area is big enough to contain every kind of item found lying around.
+    expect([...kinds].sort()).toEqual(ITEM_ORDER.filter((k) => ITEM_INFO[k].chance > 0).sort());
   });
 });
 
@@ -64,7 +64,7 @@ describe('Inventory', () => {
 
     const c = new Inventory();
     c.load({ counts: { coin: -3, berry: 'x', gem: 2.7 }, collected: [1, 'a'] });
-    expect(c.counts).toEqual({ coin: 0, berry: 0, mushroom: 0, gem: 2 });
+    expect(c.counts).toEqual({ coin: 0, berry: 0, mushroom: 0, gem: 2, fish: 0 });
     expect([...c.collected]).toEqual(['a']);
     c.load(null);
     expect(c.counts.gem).toBe(2);
