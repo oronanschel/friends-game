@@ -8,6 +8,7 @@ import { type Game, updateEntities } from './game';
 import { Inventory } from './items/items';
 import { ItemSpawner } from './items/pickup';
 import { KnightSpawner } from './knights/spawner';
+import { PlumberSpawner } from './npc/plumber';
 import { TalkController, drawQuestTracker, spawnVillagers } from './npc/talk';
 import { Health, eatBerry } from './player/health';
 import { Player } from './player/player';
@@ -85,6 +86,7 @@ const game: Game = { world, player, camera, input, entities: [], inventory, save
 game.entities.push(new ItemSpawner(inventory)); // coins, berries, mushrooms and gems to collect
 game.entities.push(new FairySpawner()); // cute fairies flutter over the meadows
 game.entities.push(new KnightSpawner()); // chess knights guard the castles
+game.entities.push(new PlumberSpawner()); // lots of Mario and Luigi pairs; press E to talk
 game.entities.push(powerSystem); // rare power stones and their powers
 game.entities.push(new Wizard(player.x, player.y, seed)); // a wizard follows you and throws spells
 game.entities.push(new CampfireSpawner(campfires)); // light a campfire to wake up there after fainting
